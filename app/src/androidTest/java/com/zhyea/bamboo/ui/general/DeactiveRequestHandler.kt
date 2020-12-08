@@ -1,12 +1,13 @@
 package com.zhyea.bamboo.ui.general
 
 /**
- *
+ * ix
+ * @author robin
  */
-class DeactiveRequestHandler(val request: DeactiveRequest) : RequestHandler {
+class DeactiveRequestHandler(val request: BaseActivityManager) : RequestHandler {
 
 
-    override fun requestDeactive(request: DeactiveRequest?): Boolean {
+    override fun requestDeactive(request: BaseActivityManager?): Boolean {
 
         return true;
     }
