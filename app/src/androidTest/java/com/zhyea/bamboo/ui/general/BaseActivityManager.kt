@@ -4,6 +4,9 @@ import android.app.Activity
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
+import android.view.KeyEvent
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 /**
@@ -14,6 +17,8 @@ class BaseActivityManager(private val activity: Activity) {
 
 
     private val chain: ArrayList<BaseActivityManager> = ArrayList(12);
+
+    private val history: LinkedList<BaseActivityManager> = LinkedList();
 
     /**
      * 分发Activity配置改变事件
@@ -40,6 +45,7 @@ class BaseActivityManager(private val activity: Activity) {
      * Activity配置改变
      */
     private fun onActivityConfigurationChanged(config: Configuration) {
+        //
     }
 
 
@@ -66,7 +72,8 @@ class BaseActivityManager(private val activity: Activity) {
     /**
      * activity创建
      */
-    private fun onActivityCreate(paramBundle: Bundle) {
+    private fun onActivityCreate(bundle: Bundle) {
+        //
     }
 
 
@@ -94,6 +101,7 @@ class BaseActivityManager(private val activity: Activity) {
      * Activity销毁
      */
     private fun onActivityDestroy() {
+        //
     }
 
 
@@ -122,6 +130,7 @@ class BaseActivityManager(private val activity: Activity) {
      * Activity Pause
      */
     private fun onActivityPause() {
+        //
     }
 
 
@@ -149,9 +158,13 @@ class BaseActivityManager(private val activity: Activity) {
      * Activity Result
      */
     private fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+        //
     }
 
 
+    /**
+     * 分发Activity Resume
+     */
     private fun dispatchActivityResume() {
         onActivityResume()
         for (item in chain) {
@@ -159,14 +172,72 @@ class BaseActivityManager(private val activity: Activity) {
         }
     }
 
-    private fun onActivityResume() {}
-
+    /**
+     * Activity Resume
+     */
     fun onActivityResume(act: Activity) {
-        if (act !== this.activity){ return}
+        if (act !== this.activity) {
+            return
+        }
         dispatchActivityResume()
         gotoActive()
     }
 
+    /**
+     * Activity Resume
+     */
+    private fun onActivityResume() {
+        //
+    }
+
+
+    /**
+     * 分发Activity保存实例状态事件
+     */
+    private fun dispatchActivitySaveInstanceState(paramBundle: Bundle) {
+        onActivitySaveInstanceState(paramBundle)
+        for (item in chain) {
+            item.dispatchActivitySaveInstanceState()
+        }
+    }
+
+    /**
+     * Activity保存实例状态
+     */
+    fun onActivitySaveInstanceState(act: Activity, bundle: Bundle) {
+        if (act !== this.activity) {
+            return
+        }
+        dispatchActivitySaveInstanceState(bundle)
+    }
+
+    /**
+     * Activity保存实例状态
+     */
+    private fun onActivitySaveInstanceState(bundle: Bundle) {
+        //
+    }
+
+
+    private fun dispatchKeyDown(eventCode: Int, event: KeyEvent): Boolean {
+        if (eventCode == 82) {
+            return true
+        }
+        val itr: ListIterator<BaseActivityManager> =
+            this.history.listIterator(this.history.size)
+        while (itr.hasPrevious()) {
+            val tmp = itr.previous()
+            if (tmp.dispatchKeyDown(eventCode, event)) {
+                return true
+            }
+        }
+        return onKeyDown(eventCode, event)
+    }
+
+
+    private fun onKeyDown(eventCode: Int, event: KeyEvent): Boolean {
+        return false
+    }
 
     private fun gotoDeactive() {
 /*        if (!b && !this.m) throw AssertionError()
