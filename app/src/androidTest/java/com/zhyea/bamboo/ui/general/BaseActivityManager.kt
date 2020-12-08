@@ -1,6 +1,7 @@
 package com.zhyea.bamboo.ui.general
 
 import android.app.Activity
+import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 
@@ -62,12 +63,12 @@ class BaseActivityManager(private val activity: Activity) {
         dispatchActivityCreate(bundle)
     }
 
-
     /**
      * activity创建
      */
     private fun onActivityCreate(paramBundle: Bundle) {
     }
+
 
     /**
      * 分发Activity销毁事件
@@ -89,12 +90,12 @@ class BaseActivityManager(private val activity: Activity) {
         dispatchActivityDestroy()
     }
 
-
     /**
      * Activity销毁
      */
     private fun onActivityDestroy() {
     }
+
 
     /**
      * 分发Activity Pause事件
@@ -106,6 +107,9 @@ class BaseActivityManager(private val activity: Activity) {
         }
     }
 
+    /**
+     * Activity Pause
+     */
     fun onActivityPause(paramActivity: Activity) {
         if (paramActivity !== this.activity) {
             return
@@ -114,8 +118,54 @@ class BaseActivityManager(private val activity: Activity) {
         gotoDeactive()
     }
 
+    /**
+     * Activity Pause
+     */
+    private fun onActivityPause() {
+    }
 
-    private fun onActivityPause() {}
+
+    /**
+     * 分发Activity Result
+     */
+    private fun dispatchActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+        onActivityResult(requestCode, resultCode, data)
+        for (item in chain) {
+            item.dispatchActivityResult(requestCode, resultCode, data)
+        }
+    }
+
+    /**
+     * Activity Result
+     */
+    fun onActivityResult(act: Activity, requestCode: Int, resultCode: Int, data: Intent) {
+        if (act !== this.activity) {
+            return
+        }
+        dispatchActivityResult(requestCode, resultCode, data)
+    }
+
+    /**
+     * Activity Result
+     */
+    private fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+    }
+
+
+    private fun dispatchActivityResume() {
+        onActivityResume()
+        for (item in chain) {
+            item.dispatchActivityResume()
+        }
+    }
+
+    private fun onActivityResume() {}
+
+    fun onActivityResume(act: Activity) {
+        if (act !== this.activity){ return}
+        dispatchActivityResume()
+        gotoActive()
+    }
 
 
     private fun gotoDeactive() {
@@ -125,5 +175,24 @@ class BaseActivityManager(private val activity: Activity) {
         this.m = false
         onDeactive()*/
     }
+
+
+    private fun gotoActive() {
+/*        if (!b && this.m) throw AssertionError()
+        this.m = true
+        onActive(this.n)
+        this.n = false
+        val localIterator: Iterator<*> = this.f.iterator()
+        while (localIterator.hasNext()) {
+            val localiw: iw = localIterator.next() as iw
+            if (!b && localiw.isActive()) throw AssertionError()
+            localiw.gotoActive()
+        }
+        while (!this.g.isEmpty()) {
+            (this.g.getFirst() as Runnable).run()
+            this.g.removeFirst()
+        }*/
+    }
+
 
 }
