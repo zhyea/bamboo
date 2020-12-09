@@ -1,4 +1,4 @@
-package com.zhyea.bamboo.ui.general
+package com.zhyea.bamboo.general
 
 /**
  * jc
@@ -7,7 +7,7 @@ package com.zhyea.bamboo.ui.general
 interface RequestHandler {
 
 
-    fun requestDeactive(request: BaseActivityManager?): Boolean
+    fun requestDeactive(request: BaseActivity?): Boolean
 
     fun requestHideMenu()
 

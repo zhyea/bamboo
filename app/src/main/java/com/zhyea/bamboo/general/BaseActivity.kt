@@ -1,10 +1,11 @@
-package com.zhyea.bamboo.ui.general
+package com.zhyea.bamboo.general
 
 import android.app.Activity
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.KeyEvent
+import android.view.KeyEvent.KEYCODE_MENU
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -13,12 +14,23 @@ import kotlin.collections.ArrayList
  * iw
  * @author robin
  */
-class BaseActivityManager(private val activity: Activity) {
+class BaseActivity(private val activity: Activity) {
 
 
-    private val chain: ArrayList<BaseActivityManager> = ArrayList(12);
+    /**
+     * e
+     */
+    private val chain: ArrayList<BaseActivity> = ArrayList(12);
 
-    private val history: LinkedList<BaseActivityManager> = LinkedList();
+    /**
+     * f
+     */
+    private val history: LinkedList<BaseActivity> = LinkedList();
+
+    /**
+     * i
+     */
+    private var baseActivity: BaseActivity? = null
 
     /**
      * 分发Activity配置改变事件
@@ -194,10 +206,10 @@ class BaseActivityManager(private val activity: Activity) {
     /**
      * 分发Activity保存实例状态事件
      */
-    private fun dispatchActivitySaveInstanceState(paramBundle: Bundle) {
-        onActivitySaveInstanceState(paramBundle)
+    private fun dispatchActivitySaveInstanceState(bundle: Bundle) {
+        onActivitySaveInstanceState(bundle)
         for (item in chain) {
-            item.dispatchActivitySaveInstanceState()
+            item.dispatchActivitySaveInstanceState(bundle)
         }
     }
 
@@ -219,25 +231,113 @@ class BaseActivityManager(private val activity: Activity) {
     }
 
 
-    private fun dispatchKeyDown(eventCode: Int, event: KeyEvent): Boolean {
-        if (eventCode == 82) {
+    /**
+     * 分发KeyDown事件
+     */
+    private fun dispatchKeyDown(keyCode: Int, event: KeyEvent): Boolean {
+        if (keyCode == KEYCODE_MENU) {
             return true
         }
-        val itr: ListIterator<BaseActivityManager> =
-            this.history.listIterator(this.history.size)
+        val itr: ListIterator<BaseActivity> = this.history.listIterator(this.history.size)
         while (itr.hasPrevious()) {
             val tmp = itr.previous()
-            if (tmp.dispatchKeyDown(eventCode, event)) {
+            if (tmp.dispatchKeyDown(keyCode, event)) {
                 return true
             }
         }
-        return onKeyDown(eventCode, event)
+        return onKeyDown(keyCode, event)
     }
 
-
-    private fun onKeyDown(eventCode: Int, event: KeyEvent): Boolean {
+    /**
+     * KeyDown事件
+     */
+    private fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
         return false
     }
+
+
+    /**
+     * 分发KeyUp事件
+     */
+    private fun dispatchKeyUp(keyCode: Int, event: KeyEvent): Boolean {
+        if (keyCode == KEYCODE_MENU) {
+            if (!isMenuShowing()) {
+                doShowMenu()
+            }
+            while (true) {
+                return true
+                doHideMenu()
+            }
+        }
+
+        val itr: ListIterator<BaseActivity> = this.history.listIterator(this.history.size)
+        while (itr.hasPrevious()) {
+            val tmp = itr.previous()
+            tmp.dispatchKeyUp(keyCode, event)
+        }
+
+        return onKeyUp(keyCode, event)
+    }
+
+    /**
+     * KeyUp事件
+     */
+    private fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
+        return false
+    }
+
+
+    fun isMenuShowing(): Boolean {
+        return if (this.baseActivity === this) {
+            onCheckMenuShowing()
+        } else {
+            this.baseActivity != null && this.baseActivity.isMenuShowing()
+        }
+    }
+
+
+    fun onCheckMenuShowing(): Boolean {
+        return true
+    }
+
+
+    private fun doShowMenu(): Boolean {
+        val itr: ListIterator<BaseActivity> = this.history.listIterator(this.history.size)
+        while (itr.hasPrevious()) {
+            val tmp = itr.previous()
+            if (tmp.doShowMenu()) {
+                this.baseActivity = tmp
+                return true
+            }
+        }
+        if (onShowMenu()) {
+            this.baseActivity = this
+            return true
+        }
+        return false
+    }
+
+    fun onShowMenu(): Boolean {
+        return false
+    }
+
+
+    private fun doHideMenu(): Boolean {
+        if (!b && this.i == null) throw AssertionError()
+        if (this.i !== this);
+        var bool: Boolean = this.i.doHideMenu()
+        while (true) {
+            if (bool) this.i = null
+            return bool
+            bool = onHideMenu()
+        }
+    }
+
+
+    fun onHideMenu(): Boolean {
+        return false
+    }
+
 
     private fun gotoDeactive() {
 /*        if (!b && !this.m) throw AssertionError()
