@@ -14,23 +14,23 @@ import kotlin.collections.ArrayList
  * iw
  * @author robin
  */
-class BaseActivity(private val activity: Activity) {
+class ActivityController(private val activity: Activity) {
 
 
     /**
      * e
      */
-    private val chain: ArrayList<BaseActivity> = ArrayList(12);
+    private val chain: ArrayList<ActivityController> = ArrayList(12);
 
     /**
      * f
      */
-    private val history: LinkedList<BaseActivity> = LinkedList();
+    private val history: LinkedList<ActivityController> = LinkedList();
 
     /**
      * i
      */
-    private var baseActivity: BaseActivity? = null
+    private var menuShowController: ActivityController? = null
 
     /**
      * 分发Activity配置改变事件
@@ -238,7 +238,7 @@ class BaseActivity(private val activity: Activity) {
         if (keyCode == KEYCODE_MENU) {
             return true
         }
-        val itr: ListIterator<BaseActivity> = this.history.listIterator(this.history.size)
+        val itr: ListIterator<ActivityController> = this.history.listIterator(this.history.size)
         while (itr.hasPrevious()) {
             val tmp = itr.previous()
             if (tmp.dispatchKeyDown(keyCode, event)) {
@@ -270,7 +270,7 @@ class BaseActivity(private val activity: Activity) {
             }
         }
 
-        val itr: ListIterator<BaseActivity> = this.history.listIterator(this.history.size)
+        val itr: ListIterator<ActivityController> = this.history.listIterator(this.history.size)
         while (itr.hasPrevious()) {
             val tmp = itr.previous()
             tmp.dispatchKeyUp(keyCode, event)
@@ -288,10 +288,10 @@ class BaseActivity(private val activity: Activity) {
 
 
     fun isMenuShowing(): Boolean {
-        return if (this.baseActivity === this) {
+        return if (this.menuShowController === this) {
             onCheckMenuShowing()
         } else {
-            this.baseActivity != null && this.baseActivity.isMenuShowing()
+            this.menuShowController != null && this.menuShowController.isMenuShowing()
         }
     }
 
@@ -302,16 +302,16 @@ class BaseActivity(private val activity: Activity) {
 
 
     private fun doShowMenu(): Boolean {
-        val itr: ListIterator<BaseActivity> = this.history.listIterator(this.history.size)
+        val itr: ListIterator<ActivityController> = this.history.listIterator(this.history.size)
         while (itr.hasPrevious()) {
             val tmp = itr.previous()
             if (tmp.doShowMenu()) {
-                this.baseActivity = tmp
+                this.menuShowController = tmp
                 return true
             }
         }
         if (onShowMenu()) {
-            this.baseActivity = this
+            this.menuShowController = this
             return true
         }
         return false
@@ -323,11 +323,11 @@ class BaseActivity(private val activity: Activity) {
 
 
     private fun doHideMenu(): Boolean {
-        if (!b && this.i == null) throw AssertionError()
-        if (this.i !== this);
-        var bool: Boolean = this.i.doHideMenu()
+        if (this.menuShowController == null){ throw AssertionError()}
+        if (this.menuShowController !== this);
+        var bool: Boolean = this.menuShowController?.doHideMenu() ?:false;
         while (true) {
-            if (bool) this.i = null
+            if (bool) this.menuShowController = null
             return bool
             bool = onHideMenu()
         }
