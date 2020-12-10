@@ -20,7 +20,7 @@ class ActivityController(private val activity: Activity) {
     /**
      * e
      */
-    private val chain: ArrayList<ActivityController> = ArrayList(12);
+    private val subControllers: ArrayList<ActivityController> = ArrayList(12);
 
     /**
      * f
@@ -33,11 +33,16 @@ class ActivityController(private val activity: Activity) {
     private var menuShowController: ActivityController? = null
 
     /**
+     * d
+     */
+    private var parent: RequestHandler? = null
+
+    /**
      * 分发Activity配置改变事件
      */
     private fun dispatchActivityConfigurationChanged(config: Configuration) {
         onActivityConfigurationChanged(config)
-        for (item in chain) {
+        for (item in subControllers) {
             item.dispatchActivityConfigurationChanged(config)
         }
     }
@@ -66,7 +71,7 @@ class ActivityController(private val activity: Activity) {
      */
     private fun dispatchActivityCreate(bundle: Bundle) {
         onActivityCreate(bundle)
-        for (item in chain) {
+        for (item in subControllers) {
             item.dispatchActivityCreate(bundle)
         }
     }
@@ -94,7 +99,7 @@ class ActivityController(private val activity: Activity) {
      */
     private fun dispatchActivityDestroy() {
         onActivityDestroy()
-        for (item in chain) {
+        for (item in subControllers) {
             item.dispatchActivityDestroy()
         }
     }
@@ -122,7 +127,7 @@ class ActivityController(private val activity: Activity) {
      */
     private fun dispatchActivityPause() {
         onActivityPause()
-        for (item in chain) {
+        for (item in subControllers) {
             item.dispatchActivityPause()
         }
     }
@@ -151,7 +156,7 @@ class ActivityController(private val activity: Activity) {
      */
     private fun dispatchActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
         onActivityResult(requestCode, resultCode, data)
-        for (item in chain) {
+        for (item in subControllers) {
             item.dispatchActivityResult(requestCode, resultCode, data)
         }
     }
@@ -179,7 +184,7 @@ class ActivityController(private val activity: Activity) {
      */
     private fun dispatchActivityResume() {
         onActivityResume()
-        for (item in chain) {
+        for (item in subControllers) {
             item.dispatchActivityResume()
         }
     }
@@ -208,7 +213,7 @@ class ActivityController(private val activity: Activity) {
      */
     private fun dispatchActivitySaveInstanceState(bundle: Bundle) {
         onActivitySaveInstanceState(bundle)
-        for (item in chain) {
+        for (item in subControllers) {
             item.dispatchActivitySaveInstanceState(bundle)
         }
     }
@@ -260,23 +265,18 @@ class ActivityController(private val activity: Activity) {
      * 分发KeyUp事件
      */
     private fun dispatchKeyUp(keyCode: Int, event: KeyEvent): Boolean {
-        if (keyCode == KEYCODE_MENU) {
-            if (!isMenuShowing()) {
-                doShowMenu()
+        if (keyCode != KEYCODE_MENU) {
+            val itr: ListIterator<ActivityController> = this.history.listIterator(this.history.size)
+            while (itr.hasPrevious()) {
+                val tmp = itr.previous()
+                tmp.dispatchKeyUp(keyCode, event)
             }
-            while (true) {
-                return true
-                doHideMenu()
-            }
+            return onKeyUp(keyCode, event)
+        } else if (isMenuShowing()) {
+            return doHideMenu()
+        } else {
+            return doShowMenu()
         }
-
-        val itr: ListIterator<ActivityController> = this.history.listIterator(this.history.size)
-        while (itr.hasPrevious()) {
-            val tmp = itr.previous()
-            tmp.dispatchKeyUp(keyCode, event)
-        }
-
-        return onKeyUp(keyCode, event)
     }
 
     /**
@@ -286,21 +286,28 @@ class ActivityController(private val activity: Activity) {
         return false
     }
 
-
-    fun isMenuShowing(): Boolean {
-        return if (this.menuShowController === this) {
-            onCheckMenuShowing()
+    /**
+     * 判断是否是MenuShowing状态
+     */
+    private fun isMenuShowing(): Boolean {
+        if (this.menuShowController === this) {
+            return onCheckMenuShowing()
         } else {
-            this.menuShowController != null && this.menuShowController.isMenuShowing()
+            return this.menuShowController!!.isMenuShowing()
         }
     }
 
-
-    fun onCheckMenuShowing(): Boolean {
+    /**
+     * MenuShowing事件
+     */
+    private fun onCheckMenuShowing(): Boolean {
         return true
     }
 
 
+    /**
+     * 执行ShowMenu事件
+     */
     private fun doShowMenu(): Boolean {
         val itr: ListIterator<ActivityController> = this.history.listIterator(this.history.size)
         while (itr.hasPrevious()) {
@@ -317,25 +324,58 @@ class ActivityController(private val activity: Activity) {
         return false
     }
 
-    fun onShowMenu(): Boolean {
+    /**
+     * ShowMenu事件
+     */
+    private fun onShowMenu(): Boolean {
         return false
     }
 
-
+    /**
+     * 执行HideMenu事件
+     */
     private fun doHideMenu(): Boolean {
-        if (this.menuShowController == null){ throw AssertionError()}
-        if (this.menuShowController !== this);
-        var bool: Boolean = this.menuShowController?.doHideMenu() ?:false;
-        while (true) {
-            if (bool) this.menuShowController = null
-            return bool
-            bool = onHideMenu()
+        if (this.menuShowController == null) {
+            throw AssertionError()
         }
+        if (this.menuShowController !== this) {
+            return this.menuShowController?.doHideMenu() ?: false
+        }
+        return onHideMenu()
+    }
+
+    /**
+     * HideMenu
+     */
+    private fun onHideMenu(): Boolean {
+        return false
     }
 
 
-    fun onHideMenu(): Boolean {
-        return false
+    fun activate(controller: ActivityController) {
+        this.f.remove(controller)
+        this.f.add(controller)
+        if (!this.m || controller.isActive()) return
+        controller.gotoActive()
+    }
+
+    fun addSubController(sub: ActivityController) {
+        if (this.subControllers.contains(sub)) {
+            return
+        }
+        this.subControllers.add(sub)
+        sub.setParent(this.parent)
+    }
+
+
+    fun setParent(parent: RequestHandler) {
+        if (this.h !== paramjc) {
+            this.h = parent
+            if (this.h == null) onDetachFromParent()
+        } else {
+            return
+        }
+        onAttachToParent()
     }
 
 
