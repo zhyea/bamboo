@@ -1,11 +1,14 @@
 package com.zhyea.bamboo.general
 
 import android.app.Activity
+import android.app.Dialog
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.KeyEvent.KEYCODE_MENU
+import android.view.View
+import android.view.ViewGroup
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -14,28 +17,59 @@ import kotlin.collections.ArrayList
  * iw
  * @author robin
  */
-class ActivityController(private val activity: Activity) {
+class ActivatedController(private val activity: Activity) {
 
 
     /**
      * e
      */
-    private val subControllers: ArrayList<ActivityController> = ArrayList(12);
+    private val subControllers: ArrayList<ActivatedController> = ArrayList(12);
 
     /**
      * f
      */
-    private val history: LinkedList<ActivityController> = LinkedList();
+    private val history: LinkedList<ActivatedController> = LinkedList();
 
     /**
      * i
      */
-    private var menuShowController: ActivityController? = null
+    private var menuShowController: ActivatedController? = null
 
     /**
      * d
      */
-    private var parent: RequestHandler? = null
+    private var parent: IController = null
+
+    /**
+     * m
+     */
+    private var isActive: Boolean = false
+
+    /**
+     * n
+     */
+    private var isFirstActive = true
+
+    /**
+     * h
+     */
+    private var subControllerParent: IController? = null
+
+    /**
+     * j
+     */
+    private var dialog: Dialog? = null
+
+    /**
+     * k
+     */
+    private var viewGroup: ViewGroup? = null
+
+    /**
+     * l
+     */
+    private var view: View? = null
+
 
     /**
      * 分发Activity配置改变事件
@@ -243,7 +277,7 @@ class ActivityController(private val activity: Activity) {
         if (keyCode == KEYCODE_MENU) {
             return true
         }
-        val itr: ListIterator<ActivityController> = this.history.listIterator(this.history.size)
+        val itr: ListIterator<ActivatedController> = this.history.listIterator(this.history.size)
         while (itr.hasPrevious()) {
             val tmp = itr.previous()
             if (tmp.dispatchKeyDown(keyCode, event)) {
@@ -266,7 +300,8 @@ class ActivityController(private val activity: Activity) {
      */
     private fun dispatchKeyUp(keyCode: Int, event: KeyEvent): Boolean {
         if (keyCode != KEYCODE_MENU) {
-            val itr: ListIterator<ActivityController> = this.history.listIterator(this.history.size)
+            val itr: ListIterator<ActivatedController> =
+                this.history.listIterator(this.history.size)
             while (itr.hasPrevious()) {
                 val tmp = itr.previous()
                 tmp.dispatchKeyUp(keyCode, event)
@@ -309,7 +344,7 @@ class ActivityController(private val activity: Activity) {
      * 执行ShowMenu事件
      */
     private fun doShowMenu(): Boolean {
-        val itr: ListIterator<ActivityController> = this.history.listIterator(this.history.size)
+        val itr: ListIterator<ActivatedController> = this.history.listIterator(this.history.size)
         while (itr.hasPrevious()) {
             val tmp = itr.previous()
             if (tmp.doShowMenu()) {
@@ -351,15 +386,45 @@ class ActivityController(private val activity: Activity) {
         return false
     }
 
+    /**
+     * 与Parent剥离
+     */
+    private fun onDetachFromParent() {
+        //
+    }
 
-    fun activate(controller: ActivityController) {
-        this.f.remove(controller)
-        this.f.add(controller)
-        if (!this.m || controller.isActive()) return
+    /**
+     * 关联parent
+     */
+    private fun onAttachToParent() {
+        //
+    }
+
+    /**
+     * Deactive时
+     */
+    private fun onDeactive() {
+        //
+    }
+
+    /**
+     * Active时
+     */
+    private fun onActive(paramBoolean: Boolean) {
+        //
+    }
+
+
+    fun activate(controller: ActivatedController) {
+        this.history.remove(controller)
+        this.history.add(controller)
+        if (!this.isActive || controller.isActive()) {
+            return
+        }
         controller.gotoActive()
     }
 
-    fun addSubController(sub: ActivityController) {
+    fun addSubController(sub: ActivatedController) {
         if (this.subControllers.contains(sub)) {
             return
         }
@@ -368,41 +433,142 @@ class ActivityController(private val activity: Activity) {
     }
 
 
-    fun setParent(parent: RequestHandler) {
-        if (this.h !== paramjc) {
-            this.h = parent
-            if (this.h == null) onDetachFromParent()
-        } else {
-            return
+    private fun setParent(parent: IController) {
+        if (this.subControllerParent !== parent) {
+            this.subControllerParent = parent
+            if (this.subControllerParent == null) {
+                onDetachFromParent()
+            }
+            onAttachToParent()
         }
-        onAttachToParent()
+    }
+
+    /**
+     * 返回是否活跃
+     */
+    private fun isActive(): Boolean {
+        return this.isActive
     }
 
 
     private fun gotoDeactive() {
-/*        if (!b && !this.m) throw AssertionError()
-        val localListIterator: ListIterator<*> = this.f.listIterator(this.f.size())
-        while (localListIterator.hasPrevious()) (localListIterator.previous() as iw).gotoDeactive()
-        this.m = false
-        onDeactive()*/
+        if (!this.isActive) {
+            throw AssertionError()
+        }
+        val itr: ListIterator<ActivatedController> = this.history.listIterator(this.history.size)
+        while (itr.hasPrevious()) {
+            val tmp = itr.previous()
+            tmp.gotoDeactive()
+        }
+        this.isActive = false
+        onDeactive()
     }
 
 
     private fun gotoActive() {
-/*        if (!b && this.m) throw AssertionError()
-        this.m = true
-        onActive(this.n)
-        this.n = false
-        val localIterator: Iterator<*> = this.f.iterator()
-        while (localIterator.hasNext()) {
-            val localiw: iw = localIterator.next() as iw
-            if (!b && localiw.isActive()) throw AssertionError()
-            localiw.gotoActive()
+        if (this.isActive) {
+            throw AssertionError()
         }
+        this.isActive = true
+        onActive(this.isFirstActive)
+        this.isFirstActive = false
+
+        for (ac in history) {
+            if (!ac.isActive()) {
+                ac.gotoActive()
+            }
+        }
+
         while (!this.g.isEmpty()) {
             (this.g.getFirst() as Runnable).run()
             this.g.removeFirst()
-        }*/
+        }
+    }
+
+
+    private fun deactivate(c: ActivatedController) {
+        if (!c.isActive()) {
+            throw AssertionError()
+        }
+        this.history.remove(c)
+        if (!this.isActive && c.isActive()) {
+            throw AssertionError()
+        }
+        if (!c.isActive()) {
+            return
+        }
+        c.gotoDeactive()
+    }
+
+
+    private fun getPopupCount(): Int {
+        if (this.dialog == null) {
+            return 0
+        }
+        if (this.viewGroup == null) {
+            throw AssertionError()
+        }
+        return this.viewGroup!!.childCount
+    }
+
+
+    fun dismissAllPopups() {
+        while (getPopupCount() > 0) dismissTopPopup()
+    }
+
+
+    private fun getContentView(): View {
+        return this.view!!
+    }
+
+    fun isPopupController(controller: ActivatedController): Boolean {
+        if (this.dialog == null);
+        while (true) {
+            return false
+            if (this.viewGroup == null) {
+                throw AssertionError()
+            }
+            for (i1 in 0 until this.viewGroup!!.childCount) {
+                if (this.viewGroup!!.getChildAt(i1) === controller.getContentView()) return true
+            }
+        }
+    }
+
+    fun dismissPopup(c: ActivatedController?): Boolean {
+        var i1 = 1
+        if (!isPopupController(c)) i1 = 0
+        do {
+            return i1
+            if (!b && this.dialog == null) throw java.lang.AssertionError()
+            if (!b && this.viewGroup == null) throw java.lang.AssertionError()
+            val localView: View = c.getContentView()
+            deactivate(c)
+            this.viewGroup.removeView(localView)
+            removeSubController(c)
+        } while (!this.viewGroup.isShowing() || this.viewGroup.getChildCount() >= i1)
+        this.dialog.dismiss()
+        return i1
+    }
+
+    fun dismissTopPopup(): Boolean {
+        if (this.digLog == null);
+        do {
+            return false
+            if (!b && this.k == null) throw java.lang.AssertionError()
+        } while (this.k.getChildCount() < 1)
+        val localView: View = this.k.getChildAt(-1 + this.k.getChildCount())
+        val localIterator: Iterator<*> = this.f.iterator()
+        var localiw: iw?
+        do {
+            if (!localIterator.hasNext()) break
+            localiw = localIterator.next() as iw?
+        } while (localiw.getContentView() !== localView)
+        while (true) {
+            if (!b && localiw == null) throw java.lang.AssertionError()
+            dismissPopup(localiw)
+            return true
+            localiw = null
+        }
     }
 
 
