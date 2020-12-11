@@ -415,6 +415,9 @@ class ActivatedController(private val activity: Activity) {
     }
 
 
+    /**
+     * 执行activate
+     */
     fun activate(controller: ActivatedController) {
         this.history.remove(controller)
         this.history.add(controller)
@@ -424,6 +427,9 @@ class ActivatedController(private val activity: Activity) {
         controller.gotoActive()
     }
 
+    /**
+     * 添加sub controller
+     */
     fun addSubController(sub: ActivatedController) {
         if (this.subControllers.contains(sub)) {
             return
@@ -433,14 +439,19 @@ class ActivatedController(private val activity: Activity) {
     }
 
 
-    private fun setParent(parent: IController) {
+    /**
+     * 设置parent controller
+     */
+    private fun setParent(parent: IController?) {
         if (this.subControllerParent !== parent) {
             this.subControllerParent = parent
             if (this.subControllerParent == null) {
                 onDetachFromParent()
             }
-            onAttachToParent()
+        } else {
+            return
         }
+        onAttachToParent()
     }
 
     /**
@@ -451,6 +462,9 @@ class ActivatedController(private val activity: Activity) {
     }
 
 
+    /**
+     * 执行deactivate
+     */
     private fun gotoDeactive() {
         if (!this.isActive) {
             throw AssertionError()
@@ -465,6 +479,9 @@ class ActivatedController(private val activity: Activity) {
     }
 
 
+    /**
+     * 执行active
+     */
     private fun gotoActive() {
         if (this.isActive) {
             throw AssertionError()
@@ -486,21 +503,26 @@ class ActivatedController(private val activity: Activity) {
     }
 
 
-    private fun deactivate(c: ActivatedController) {
-        if (!c.isActive()) {
+    /**
+     * 执行deactive
+     */
+    private fun deactivate(controller: ActivatedController) {
+        if (!controller.isActive()) {
             throw AssertionError()
         }
-        this.history.remove(c)
-        if (!this.isActive && c.isActive()) {
+        this.history.remove(controller)
+        if (!this.isActive && controller.isActive()) {
             throw AssertionError()
         }
-        if (!c.isActive()) {
+        if (!controller.isActive()) {
             return
         }
-        c.gotoDeactive()
+        controller.gotoDeactive()
     }
 
-
+    /**
+     * 获取popup组件的数量
+     */
     private fun getPopupCount(): Int {
         if (this.dialog == null) {
             return 0
@@ -512,48 +534,80 @@ class ActivatedController(private val activity: Activity) {
     }
 
 
+    /**
+     * 关掉全部popup组件
+     */
     fun dismissAllPopups() {
-        while (getPopupCount() > 0) dismissTopPopup()
+        while (getPopupCount() > 0) {
+            dismissTopPopup()
+        }
     }
 
 
+    /**
+     * 移除sub controller
+     */
+    private fun removeSubController(sub: ActivatedController) {
+        if (!this.subControllers.contains(sub)) {
+            return
+        }
+        if (sub.isActive()) {
+            deactivate(sub)
+        }
+        this.subControllers.remove(sub)
+        sub.setParent(null)
+    }
+
+    /**
+     * 获取content view
+     */
     private fun getContentView(): View {
         return this.view!!
     }
 
-    fun isPopupController(controller: ActivatedController): Boolean {
-        if (this.dialog == null);
-        while (true) {
+    /**
+     * 判断是否是popup controller
+     */
+    private fun isPopupController(controller: ActivatedController): Boolean {
+        if (this.dialog == null) {
             return false
-            if (this.viewGroup == null) {
-                throw AssertionError()
-            }
+        }
+        if (this.viewGroup == null) {
+            throw AssertionError()
+        }
+        while (true) {
             for (i1 in 0 until this.viewGroup!!.childCount) {
-                if (this.viewGroup!!.getChildAt(i1) === controller.getContentView()) return true
+                val tmp = this.viewGroup!!.getChildAt(i1)
+                if (tmp === controller.getContentView()) {
+                    return true
+                }
             }
         }
     }
 
-    fun dismissPopup(c: ActivatedController?): Boolean {
+    /**
+     * 关闭全部popup组件
+     */
+    private fun dismissPopup(c: ActivatedController): Boolean {
         var i1 = 1
         if (!isPopupController(c)) i1 = 0
         do {
-            return i1
-            if (!b && this.dialog == null) throw java.lang.AssertionError()
-            if (!b && this.viewGroup == null) throw java.lang.AssertionError()
+            if (this.dialog == null) throw java.lang.AssertionError()
+            if (this.viewGroup == null) throw java.lang.AssertionError()
             val localView: View = c.getContentView()
             deactivate(c)
-            this.viewGroup.removeView(localView)
+            this.viewGroup!!.removeView(localView)
             removeSubController(c)
-        } while (!this.viewGroup.isShowing() || this.viewGroup.getChildCount() >= i1)
-        this.dialog.dismiss()
+        } while (!this.viewGroup?.isShown || this.viewGroup?.getChildCount() ?: >= i1)
+        this.dialog!!.dismiss()
         return i1
     }
 
     fun dismissTopPopup(): Boolean {
-        if (this.digLog == null);
-        do {
+        if (this.dialog == null) {
             return false
+        }
+        do {
             if (!b && this.k == null) throw java.lang.AssertionError()
         } while (this.k.getChildCount() < 1)
         val localView: View = this.k.getChildAt(-1 + this.k.getChildCount())
