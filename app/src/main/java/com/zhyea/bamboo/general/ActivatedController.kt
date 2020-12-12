@@ -585,45 +585,71 @@ class ActivatedController(private val activity: Activity) {
         }
     }
 
+
     /**
      * 关闭全部popup组件
      */
-    private fun dismissPopup(c: ActivatedController): Boolean {
-        var i1 = 1
-        if (!isPopupController(c)) i1 = 0
+    private fun dismissPopup(controller: ActivatedController): Boolean {
+        var popup = 1;
+        if (!isPopupController(controller)) {
+            popup = 0
+            return popup > 0
+        }
         do {
-            if (this.dialog == null) throw java.lang.AssertionError()
-            if (this.viewGroup == null) throw java.lang.AssertionError()
-            val localView: View = c.getContentView()
-            deactivate(c)
+            if (this.dialog == null) throw AssertionError()
+            if (this.viewGroup == null) throw AssertionError()
+            val localView: View = controller.getContentView()
+            deactivate(controller)
             this.viewGroup!!.removeView(localView)
-            removeSubController(c)
-        } while (!this.viewGroup?.isShown || this.viewGroup?.getChildCount() ?: >= i1)
+            removeSubController(controller)
+        } while (!this.dialog!!.isShowing || this.viewGroup!!.childCount >= popup)
         this.dialog!!.dismiss()
-        return i1
+        return popup > 0
     }
 
-    fun dismissTopPopup(): Boolean {
+
+    private fun dismissTopPopup(): Boolean {
         if (this.dialog == null) {
             return false
         }
         do {
-            if (!b && this.k == null) throw java.lang.AssertionError()
-        } while (this.k.getChildCount() < 1)
-        val localView: View = this.k.getChildAt(-1 + this.k.getChildCount())
-        val localIterator: Iterator<*> = this.f.iterator()
-        var localiw: iw?
-        do {
-            if (!localIterator.hasNext()) break
-            localiw = localIterator.next() as iw?
-        } while (localiw.getContentView() !== localView)
+            if (this.viewGroup == null) throw AssertionError()
+        } while (this.viewGroup!!.childCount < 1)
+
+        val lastView: View = this.viewGroup!!.getChildAt(this.viewGroup!!.childCount - 1)
+        var controller: ActivatedController? = null
+        for (c in this.history) {
+            controller = c
+            if (c.getContentView() === lastView) {
+                break
+            }
+        }
+
         while (true) {
-            if (!b && localiw == null) throw java.lang.AssertionError()
-            dismissPopup(localiw)
+            if (controller == null) {
+                throw AssertionError()
+            }
+            dismissPopup(controller)
             return true
-            localiw = null
         }
     }
 
+
+    fun findSubController(view: View): ActivatedController? {
+        for (controller in this.subControllers) {
+            if (view === controller.getContentView()) {
+                return controller;
+            }
+        }
+        return null
+    }
+
+    fun findViewById(paramInt: Int): View {
+        val localView1: View = this.l
+        var localView2: View? = null
+        if (localView1 != null) localView2 = this.l.findViewById(paramInt)
+        if (localView2 == null) localView2 = this.c.findViewById(paramInt)
+        return localView2
+    }
 
 }
