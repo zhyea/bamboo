@@ -4,11 +4,13 @@ import android.app.Activity
 import android.app.Dialog
 import android.content.Intent
 import android.content.res.Configuration
+import android.content.res.Resources
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.KeyEvent.KEYCODE_MENU
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -652,4 +654,25 @@ class ActivatedController(private val activity: Activity) {
         return localView2
     }
 
+
+    private fun getActivity(): Activity {
+        return this.activity
+    }
+
+    fun getPopupDialog(): Dialog? {
+        if (!this.isActive) {
+            return null
+        }
+        if (this.dialog == null) {
+            if (this.viewGroup != null) throw AssertionError()
+            this.j = ja(this, getActivity(), true, true)
+            this.viewGroup = FrameLayout(getActivity())
+            this.dialog!!.setContentView(this.viewGroup!!, ViewGroup.LayoutParams(-1, -1))
+        }
+        return this.dialog
+    }
+
+    fun getResources(): Resources {
+        return this.c.getResources()
+    }
 }
