@@ -6,5 +6,5 @@ import android.content.Context
 /**
  * er
  */
-class CustomDialog(context: Context, themeResId: Int) : Dialog(context, 0x7f090021) {
+class CustomDialog(context: Context, themeResId: Int) : Dialog(context) {
 }
