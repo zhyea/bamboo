@@ -7,17 +7,17 @@ import android.os.Bundle
 
 interface BambooAppListener {
 
-    fun onActivityConfigurationChanged(paramActivity: Activity?, paramConfiguration: Configuration?)
+    fun onActivityConfigurationChanged(activity: Activity, config: Configuration)
 
-    fun onActivityCreate(paramActivity: Activity?, paramBundle: Bundle?)
+    fun onActivityCreate(activity: Activity, bundle: Bundle)
 
-    fun onActivityDestroy(paramActivity: Activity?)
+    fun onActivityDestroy(activity: Activity)
 
-    fun onActivityPause(paramActivity: Activity?)
+    fun onActivityPause(activity: Activity)
 
-    fun onActivityResume(paramActivity: Activity?)
+    fun onActivityResume(activity: Activity)
 
-    fun onActivitySaveInstanceState(paramActivity: Activity?, paramBundle: Bundle?)
+    fun onActivitySaveInstanceState(activity: Activity, bundle: Bundle)
 
 
 }

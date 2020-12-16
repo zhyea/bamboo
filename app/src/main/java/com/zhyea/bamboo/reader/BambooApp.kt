@@ -4,14 +4,16 @@ import android.app.Activity
 import android.app.Application
 import android.os.Bundle
 import android.os.Looper
+import java.util.*
 
 
 abstract class BambooApp() : Application() {
 
-    private var activity:Activity? = null
+    private var activity: Activity? = null
 
-    private var created:Boolean =false
+    private var created: Boolean = false
 
+    private val listeners: List<BambooAppListener> = LinkedList()
 
 
     init {
@@ -23,14 +25,12 @@ abstract class BambooApp() : Application() {
     }
 
 
-    protected fun onActivityCreate(activity: Activity, bundle: Bundle?) {
+    protected fun onActivityCreate(activity: Activity, bundle: Bundle) {
         this.activity = activity
         this.created = true
-        val localIterator: Iterator<*> = this.d.iterator()
-        while (localIterator.hasNext()) (localIterator.next() as DkAppListener).onActivityCreate(
-            activity,
-            bundle
-        )
+        for (listener in listeners) {
+            listener.onActivityCreate(activity, bundle)
+        }
     }
 
 
