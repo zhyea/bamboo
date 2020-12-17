@@ -7,6 +7,7 @@ import android.os.Bundle
 
 interface BambooAppListener {
 
+    
     fun onActivityConfigurationChanged(activity: Activity, config: Configuration)
 
     fun onActivityCreate(activity: Activity, bundle: Bundle)
