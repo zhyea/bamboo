@@ -8,6 +8,7 @@ import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
+import com.zhyea.bamboo.reader.BambooApp
 import java.lang.ref.WeakReference
 import java.util.*
 
@@ -18,7 +19,7 @@ import java.util.*
 class CustomDialog(context: Context, themeResId: Int) : Dialog(context, themeResId) {
 
 
-    private val c: LinkedList = LinkedList()
+    private val c: LinkedList<WeakReference<Dialog>> = LinkedList()
     private val d: DialogInterface.OnDismissListener? = null
 
     /**
@@ -33,11 +34,20 @@ class CustomDialog(context: Context, themeResId: Int) : Dialog(context, themeRes
 
 
     override fun dismiss() {
-        val localIterator: MutableIterator<*> = c.iterator()
-        while (localIterator.hasNext()) if ((localIterator.next() as WeakReference).get() as Dialog === this) localIterator.remove()
+        val itr = c.iterator()
+        while (itr.hasNext()) {
+            val dialog = itr.next().get()
+            if (dialog === this) {
+                itr.remove()
+            }
+        }
+
         d?.onDismiss(this)
-        val localActivity: Activity = DkApp.get().getCurrentActivity()
-        if (localActivity != null && !localActivity.isFinishing) super.dismiss()
+
+        val act: Activity? = BambooApp.get()!!.getCurrentActivity()
+        if (null != act && !act.isFinishing) {
+            super.dismiss()
+        }
     }
 
     override fun dispatchKeyEvent(keyEvent: KeyEvent): Boolean {
