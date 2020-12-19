@@ -8,6 +8,7 @@ import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
+import com.zhyea.bamboo.R
 import com.zhyea.bamboo.reader.BambooApp
 import java.lang.ref.WeakReference
 import java.util.*
@@ -16,11 +17,11 @@ import java.util.*
 /**
  * er
  */
-class CustomDialog(context: Context, themeResId: Int) : Dialog(context, themeResId) {
+class CustomDialog(context: Context) : Dialog(context, R.style.AppTheme) {
 
+    private val dialogContext: Context = context;
 
-    private val c: LinkedList<WeakReference<Dialog>> = LinkedList()
-    private val d: DialogInterface.OnDismissListener? = null
+    private val dismissListener: DialogInterface.OnDismissListener? = null
 
     /**
      * a
@@ -34,7 +35,7 @@ class CustomDialog(context: Context, themeResId: Int) : Dialog(context, themeRes
 
 
     override fun dismiss() {
-        val itr = c.iterator()
+        val itr = dialogList.iterator()
         while (itr.hasNext()) {
             val dialog = itr.next().get()
             if (dialog === this) {
@@ -42,7 +43,7 @@ class CustomDialog(context: Context, themeResId: Int) : Dialog(context, themeRes
             }
         }
 
-        d?.onDismiss(this)
+        dismissListener?.onDismiss(this)
 
         val act: Activity? = BambooApp.get()!!.getCurrentActivity()
         if (null != act && !act.isFinishing) {
@@ -71,6 +72,22 @@ class CustomDialog(context: Context, themeResId: Int) : Dialog(context, themeRes
 
     override fun setContentView(view: View) {
         setContentView(view, null)
+    }
+
+
+    companion object {
+
+        private val dialogList: LinkedList<WeakReference<Dialog>> = LinkedList()
+
+        fun dialog(): Dialog? {
+            for (e in this.dialogList) {
+                val d = e.get()
+                if (null != d) {
+                    return d
+                }
+            }
+            return null
+        }
     }
 
 
