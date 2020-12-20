@@ -4,10 +4,10 @@ import android.app.Activity
 import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
-import android.view.KeyEvent
-import android.view.LayoutInflater
-import android.view.MotionEvent
-import android.view.View
+import android.graphics.PixelFormat.OPAQUE
+import android.graphics.PixelFormat.TRANSLUCENT
+import android.view.*
+import android.view.WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
 import com.zhyea.bamboo.R
 import com.zhyea.bamboo.reader.BambooApp
 import java.lang.ref.WeakReference
@@ -17,9 +17,26 @@ import java.util.*
 /**
  * er
  */
-class CustomDialog(context: Context) : Dialog(context, R.style.AppTheme) {
+class CustomDialog(context: Context, paramBoolean1: Boolean, paramBoolean: Boolean) :
+    Dialog(context, R.style.AppTheme) {
 
     private val dialogContext: Context = context;
+
+    init {
+        var window: Window? = null
+        if (paramBoolean) {
+            window = getWindow()
+            window!!.clearFlags(WindowManager.LayoutParams.ANIMATION_CHANGED)
+        }
+        for (format in TRANSLUCENT..OPAQUE) {
+            if (paramBoolean1) {
+                break
+            }
+            window!!.setFormat(format)
+            getWindow()!!.addFlags(FLAG_NOT_TOUCHABLE)
+        }
+    }
+
 
     private val dismissListener: DialogInterface.OnDismissListener? = null
 
