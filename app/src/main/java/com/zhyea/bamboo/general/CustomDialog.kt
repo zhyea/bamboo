@@ -69,7 +69,7 @@ class CustomDialog(context: Context, paramBoolean1: Boolean, clearFlags: Boolean
      * c
      */
     private fun dialog(): Dialog? {
-        for (reference in dialogList) {
+        for (reference in showingDialogs) {
             val dialog = reference.get()
             if (null != dialog) {
                 return dialog
@@ -94,7 +94,7 @@ class CustomDialog(context: Context, paramBoolean1: Boolean, clearFlags: Boolean
 
 
     override fun dismiss() {
-        val itr = dialogList.iterator()
+        val itr = showingDialogs.iterator()
         while (itr.hasNext()) {
             val dialog = itr.next().get()
             if (dialog === this) {
@@ -144,14 +144,31 @@ class CustomDialog(context: Context, paramBoolean1: Boolean, clearFlags: Boolean
         super.setContentView(this.layout!!, ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT))
     }
 
+
+    override fun show() {
+        if (!isShowing) {
+            val attributes = window!!.attributes
+            attributes.width = MATCH_PARENT
+            attributes.height = MATCH_PARENT
+            val win: Window? = window()
+            if (win != null) {
+                attributes.flags =
+                    (-0x11 and win.attributes.flags) or (FLAG_NOT_TOUCHABLE and attributes.flags)
+            }
+            window!!.attributes = attributes
+            showingDialogs.addFirst(WeakReference<Dialog>(this))
+        }
+        super.show()
+    }
+
     companion object {
 
-        private val dialogList: LinkedList<WeakReference<Dialog>> = LinkedList()
+        private val showingDialogs: LinkedList<WeakReference<Dialog>> = LinkedList()
 
         private var dismissListener: DialogInterface.OnDismissListener? = null
 
         fun dialog(): Dialog? {
-            for (e in this.dialogList) {
+            for (e in this.showingDialogs) {
                 val d = e.get()
                 if (null != d) {
                     return d

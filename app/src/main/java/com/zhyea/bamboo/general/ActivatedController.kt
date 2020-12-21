@@ -40,7 +40,7 @@ class ActivatedController(private val activity: Activity) {
     /**
      * d
      */
-    private var parent: IController = null
+    private var parent: IController? = null
 
     /**
      * m
