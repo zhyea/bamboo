@@ -17,14 +17,16 @@ import java.util.*
 /**
  * er
  */
-class CustomDialog(context: Context, paramBoolean1: Boolean, paramBoolean: Boolean) :
+class CustomDialog(context: Context, paramBoolean1: Boolean, clearFlags: Boolean) :
     Dialog(context, R.style.AppTheme) {
 
     private val dialogContext: Context = context;
 
+    private val dismissListener: DialogInterface.OnDismissListener? = null
+
     init {
         var window: Window? = null
-        if (paramBoolean) {
+        if (clearFlags) {
             window = getWindow()
             window!!.clearFlags(WindowManager.LayoutParams.ANIMATION_CHANGED)
         }
@@ -38,7 +40,11 @@ class CustomDialog(context: Context, paramBoolean1: Boolean, paramBoolean: Boole
     }
 
 
-    private val dismissListener: DialogInterface.OnDismissListener? = null
+    constructor(context: Context, paramBoolean1: Boolean, clearFlags: Boolean, resId: Int)
+            : this(context, paramBoolean1, clearFlags) {
+        window!!.setWindowAnimations(resId)
+    }
+
 
     /**
      * a
@@ -48,6 +54,34 @@ class CustomDialog(context: Context, paramBoolean1: Boolean, paramBoolean: Boole
             val a = context as Activity
             a.onUserInteraction()
         }
+    }
+
+
+    /**
+     * c
+     */
+    private fun dialog(): Dialog? {
+        for (reference in dialogList) {
+            val dialog = reference.get()
+            if (null != dialog) {
+                return dialog
+            }
+        }
+        return null
+    }
+
+    /**
+     * b
+     */
+    private fun window(): Window? {
+        val dialog: Dialog? = dialog()
+        if (null != dialog) {
+            return dialog.window
+        }
+        if (context is Activity) {
+            return (context as Activity).window
+        }
+        return null
     }
 
 
@@ -83,8 +117,8 @@ class CustomDialog(context: Context, paramBoolean1: Boolean, paramBoolean: Boole
         return super.dispatchTrackballEvent(motionEvent)
     }
 
-    override fun setContentView(resource: Int) {
-        setContentView(LayoutInflater.from(context).inflate(resource, null))
+    override fun setContentView(resId: Int) {
+        setContentView(LayoutInflater.from(context).inflate(resId, null))
     }
 
     override fun setContentView(view: View) {
@@ -96,6 +130,8 @@ class CustomDialog(context: Context, paramBoolean1: Boolean, paramBoolean: Boole
 
         private val dialogList: LinkedList<WeakReference<Dialog>> = LinkedList()
 
+        private var dismissListener: DialogInterface.OnDismissListener? = null
+
         fun dialog(): Dialog? {
             for (e in this.dialogList) {
                 val d = e.get()
@@ -105,6 +141,12 @@ class CustomDialog(context: Context, paramBoolean1: Boolean, paramBoolean: Boole
             }
             return null
         }
+
+
+        fun set(listener: DialogInterface.OnDismissListener) {
+            dismissListener = listener
+        }
+
     }
 
 
