@@ -7,6 +7,8 @@ import android.content.DialogInterface
 import android.graphics.PixelFormat.OPAQUE
 import android.graphics.PixelFormat.TRANSLUCENT
 import android.view.*
+import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
 import com.zhyea.bamboo.R
 import com.zhyea.bamboo.reader.BambooApp
@@ -20,9 +22,15 @@ import java.util.*
 class CustomDialog(context: Context, paramBoolean1: Boolean, clearFlags: Boolean) :
     Dialog(context, R.style.AppTheme) {
 
-    private val dialogContext: Context = context;
-
+    /**
+     * d
+     */
     private val dismissListener: DialogInterface.OnDismissListener? = null
+
+    /**
+     * b
+     */
+    private var layout: CustomLayout? = null
 
     init {
         var window: Window? = null
@@ -125,6 +133,16 @@ class CustomDialog(context: Context, paramBoolean1: Boolean, clearFlags: Boolean
         setContentView(view, null)
     }
 
+    override fun setContentView(paramView: View, layoutParams: ViewGroup.LayoutParams?) {
+        var params = layoutParams
+        this.layout = CustomLayout(context)
+        val tmp: CustomLayout? = this.layout
+        if (params == null) {
+            params = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+        }
+        tmp!!.addView(paramView, params)
+        super.setContentView(this.layout!!, ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT))
+    }
 
     companion object {
 
