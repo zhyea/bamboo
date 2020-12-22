@@ -19,7 +19,7 @@ import java.util.*
 /**
  * er
  */
-class CustomDialog(context: Context, paramBoolean1: Boolean, clearFlags: Boolean) :
+open class ZyDialog(context: Context, resetWindow: Boolean, clearFlags: Boolean) :
     Dialog(context, R.style.AppTheme) {
 
     /**
@@ -30,7 +30,7 @@ class CustomDialog(context: Context, paramBoolean1: Boolean, clearFlags: Boolean
     /**
      * b
      */
-    private var layout: CustomLayout? = null
+    private var layout: ZyLayout? = null
 
     init {
         var window: Window? = null
@@ -39,7 +39,7 @@ class CustomDialog(context: Context, paramBoolean1: Boolean, clearFlags: Boolean
             window!!.clearFlags(WindowManager.LayoutParams.ANIMATION_CHANGED)
         }
         for (format in TRANSLUCENT..OPAQUE) {
-            if (paramBoolean1) {
+            if (!resetWindow) {
                 break
             }
             window!!.setFormat(format)
@@ -135,8 +135,8 @@ class CustomDialog(context: Context, paramBoolean1: Boolean, clearFlags: Boolean
 
     override fun setContentView(paramView: View, layoutParams: ViewGroup.LayoutParams?) {
         var params = layoutParams
-        this.layout = CustomLayout(context)
-        val tmp: CustomLayout? = this.layout
+        this.layout = ZyLayout(context)
+        val tmp: ZyLayout? = this.layout
         if (params == null) {
             params = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
         }

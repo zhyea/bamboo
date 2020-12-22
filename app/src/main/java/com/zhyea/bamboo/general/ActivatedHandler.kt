@@ -19,28 +19,28 @@ import kotlin.collections.ArrayList
  * iw
  * @author robin
  */
-class ActivatedController(private val activity: Activity) {
+class ActivatedHandler(private val activity: Activity) {
 
 
     /**
      * e
      */
-    private val subControllers: ArrayList<ActivatedController> = ArrayList(12);
+    private val subHandlers: ArrayList<ActivatedHandler> = ArrayList(12);
 
     /**
      * f
      */
-    private val history: LinkedList<ActivatedController> = LinkedList();
+    private val history: LinkedList<ActivatedHandler> = LinkedList();
 
     /**
      * i
      */
-    private var menuShowController: ActivatedController? = null
+    private var menuShowHandler: ActivatedHandler? = null
 
     /**
      * d
      */
-    private var parent: IController? = null
+    private var parent: IHandler? = null
 
     /**
      * m
@@ -55,7 +55,7 @@ class ActivatedController(private val activity: Activity) {
     /**
      * h
      */
-    private var subControllerParent: IController? = null
+    private var subHandlerParent: IHandler? = null
 
     /**
      * j
@@ -78,7 +78,7 @@ class ActivatedController(private val activity: Activity) {
      */
     private fun dispatchActivityConfigurationChanged(config: Configuration) {
         onActivityConfigurationChanged(config)
-        for (item in subControllers) {
+        for (item in subHandlers) {
             item.dispatchActivityConfigurationChanged(config)
         }
     }
@@ -107,7 +107,7 @@ class ActivatedController(private val activity: Activity) {
      */
     private fun dispatchActivityCreate(bundle: Bundle) {
         onActivityCreate(bundle)
-        for (item in subControllers) {
+        for (item in subHandlers) {
             item.dispatchActivityCreate(bundle)
         }
     }
@@ -135,7 +135,7 @@ class ActivatedController(private val activity: Activity) {
      */
     private fun dispatchActivityDestroy() {
         onActivityDestroy()
-        for (item in subControllers) {
+        for (item in subHandlers) {
             item.dispatchActivityDestroy()
         }
     }
@@ -163,7 +163,7 @@ class ActivatedController(private val activity: Activity) {
      */
     private fun dispatchActivityPause() {
         onActivityPause()
-        for (item in subControllers) {
+        for (item in subHandlers) {
             item.dispatchActivityPause()
         }
     }
@@ -192,7 +192,7 @@ class ActivatedController(private val activity: Activity) {
      */
     private fun dispatchActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
         onActivityResult(requestCode, resultCode, data)
-        for (item in subControllers) {
+        for (item in subHandlers) {
             item.dispatchActivityResult(requestCode, resultCode, data)
         }
     }
@@ -220,7 +220,7 @@ class ActivatedController(private val activity: Activity) {
      */
     private fun dispatchActivityResume() {
         onActivityResume()
-        for (item in subControllers) {
+        for (item in subHandlers) {
             item.dispatchActivityResume()
         }
     }
@@ -249,7 +249,7 @@ class ActivatedController(private val activity: Activity) {
      */
     private fun dispatchActivitySaveInstanceState(bundle: Bundle) {
         onActivitySaveInstanceState(bundle)
-        for (item in subControllers) {
+        for (item in subHandlers) {
             item.dispatchActivitySaveInstanceState(bundle)
         }
     }
@@ -279,7 +279,7 @@ class ActivatedController(private val activity: Activity) {
         if (keyCode == KEYCODE_MENU) {
             return true
         }
-        val itr: ListIterator<ActivatedController> = this.history.listIterator(this.history.size)
+        val itr: ListIterator<ActivatedHandler> = this.history.listIterator(this.history.size)
         while (itr.hasPrevious()) {
             val tmp = itr.previous()
             if (tmp.dispatchKeyDown(keyCode, event)) {
@@ -302,7 +302,7 @@ class ActivatedController(private val activity: Activity) {
      */
     private fun dispatchKeyUp(keyCode: Int, event: KeyEvent): Boolean {
         if (keyCode != KEYCODE_MENU) {
-            val itr: ListIterator<ActivatedController> =
+            val itr: ListIterator<ActivatedHandler> =
                 this.history.listIterator(this.history.size)
             while (itr.hasPrevious()) {
                 val tmp = itr.previous()
@@ -327,10 +327,10 @@ class ActivatedController(private val activity: Activity) {
      * 判断是否是MenuShowing状态
      */
     private fun isMenuShowing(): Boolean {
-        if (this.menuShowController === this) {
+        if (this.menuShowHandler === this) {
             return onCheckMenuShowing()
         } else {
-            return this.menuShowController!!.isMenuShowing()
+            return this.menuShowHandler!!.isMenuShowing()
         }
     }
 
@@ -346,16 +346,16 @@ class ActivatedController(private val activity: Activity) {
      * 执行ShowMenu事件
      */
     private fun doShowMenu(): Boolean {
-        val itr: ListIterator<ActivatedController> = this.history.listIterator(this.history.size)
+        val itr: ListIterator<ActivatedHandler> = this.history.listIterator(this.history.size)
         while (itr.hasPrevious()) {
             val tmp = itr.previous()
             if (tmp.doShowMenu()) {
-                this.menuShowController = tmp
+                this.menuShowHandler = tmp
                 return true
             }
         }
         if (onShowMenu()) {
-            this.menuShowController = this
+            this.menuShowHandler = this
             return true
         }
         return false
@@ -372,11 +372,11 @@ class ActivatedController(private val activity: Activity) {
      * 执行HideMenu事件
      */
     private fun doHideMenu(): Boolean {
-        if (this.menuShowController == null) {
+        if (this.menuShowHandler == null) {
             throw AssertionError()
         }
-        if (this.menuShowController !== this) {
-            return this.menuShowController?.doHideMenu() ?: false
+        if (this.menuShowHandler !== this) {
+            return this.menuShowHandler?.doHideMenu() ?: false
         }
         return onHideMenu()
     }
@@ -420,7 +420,7 @@ class ActivatedController(private val activity: Activity) {
     /**
      * 执行activate
      */
-    fun activate(controller: ActivatedController) {
+    fun activate(controller: ActivatedHandler) {
         this.history.remove(controller)
         this.history.add(controller)
         if (!this.isActive || controller.isActive()) {
@@ -432,11 +432,11 @@ class ActivatedController(private val activity: Activity) {
     /**
      * 添加sub controller
      */
-    fun addSubController(sub: ActivatedController) {
-        if (this.subControllers.contains(sub)) {
+    fun addSubController(sub: ActivatedHandler) {
+        if (this.subHandlers.contains(sub)) {
             return
         }
-        this.subControllers.add(sub)
+        this.subHandlers.add(sub)
         sub.setParent(this.parent)
     }
 
@@ -444,10 +444,10 @@ class ActivatedController(private val activity: Activity) {
     /**
      * 设置parent controller
      */
-    private fun setParent(parent: IController?) {
-        if (this.subControllerParent !== parent) {
-            this.subControllerParent = parent
-            if (this.subControllerParent == null) {
+    private fun setParent(parent: IHandler?) {
+        if (this.subHandlerParent !== parent) {
+            this.subHandlerParent = parent
+            if (this.subHandlerParent == null) {
                 onDetachFromParent()
             }
         } else {
@@ -471,7 +471,7 @@ class ActivatedController(private val activity: Activity) {
         if (!this.isActive) {
             throw AssertionError()
         }
-        val itr: ListIterator<ActivatedController> = this.history.listIterator(this.history.size)
+        val itr: ListIterator<ActivatedHandler> = this.history.listIterator(this.history.size)
         while (itr.hasPrevious()) {
             val tmp = itr.previous()
             tmp.gotoDeactive()
@@ -508,7 +508,7 @@ class ActivatedController(private val activity: Activity) {
     /**
      * 执行deactive
      */
-    private fun deactivate(controller: ActivatedController) {
+    private fun deactivate(controller: ActivatedHandler) {
         if (!controller.isActive()) {
             throw AssertionError()
         }
@@ -549,14 +549,14 @@ class ActivatedController(private val activity: Activity) {
     /**
      * 移除sub controller
      */
-    private fun removeSubController(sub: ActivatedController) {
-        if (!this.subControllers.contains(sub)) {
+    private fun removeSubController(sub: ActivatedHandler) {
+        if (!this.subHandlers.contains(sub)) {
             return
         }
         if (sub.isActive()) {
             deactivate(sub)
         }
-        this.subControllers.remove(sub)
+        this.subHandlers.remove(sub)
         sub.setParent(null)
     }
 
@@ -570,7 +570,7 @@ class ActivatedController(private val activity: Activity) {
     /**
      * 判断是否是popup controller
      */
-    private fun isPopupController(controller: ActivatedController): Boolean {
+    private fun isPopupController(controller: ActivatedHandler): Boolean {
         if (this.dialog == null) {
             return false
         }
@@ -591,7 +591,7 @@ class ActivatedController(private val activity: Activity) {
     /**
      * 关闭全部popup组件
      */
-    private fun dismissPopup(controller: ActivatedController): Boolean {
+    private fun dismissPopup(controller: ActivatedHandler): Boolean {
         var popup = 1;
         if (!isPopupController(controller)) {
             popup = 0
@@ -619,7 +619,7 @@ class ActivatedController(private val activity: Activity) {
         } while (this.viewGroup!!.childCount < 1)
 
         val lastView: View = this.viewGroup!!.getChildAt(this.viewGroup!!.childCount - 1)
-        var controller: ActivatedController? = null
+        var controller: ActivatedHandler? = null
         for (c in this.history) {
             controller = c
             if (c.getContentView() === lastView) {
@@ -637,8 +637,8 @@ class ActivatedController(private val activity: Activity) {
     }
 
 
-    fun findSubController(view: View): ActivatedController? {
-        for (controller in this.subControllers) {
+    fun findSubController(view: View): ActivatedHandler? {
+        for (controller in this.subHandlers) {
             if (view === controller.getContentView()) {
                 return controller;
             }

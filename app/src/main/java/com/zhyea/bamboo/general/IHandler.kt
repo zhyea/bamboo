@@ -4,10 +4,10 @@ package com.zhyea.bamboo.general
  * jc
  * @author robin
  */
-interface IController {
+interface IHandler {
 
 
-    fun requestDeactive(request: ActivatedController?): Boolean
+    fun requestDeactive(request: ActivatedHandler?): Boolean
 
     fun requestHideMenu()
 

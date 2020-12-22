@@ -7,7 +7,7 @@ import android.widget.FrameLayout
 /**
  * ae
  */
-class CustomLayout(context: Context, attributeSet: AttributeSet?, defStyleAttr: Int) :
+class ZyLayout(context: Context, attributeSet: AttributeSet?, defStyleAttr: Int) :
     FrameLayout(context, attributeSet, defStyleAttr) {
 
 
