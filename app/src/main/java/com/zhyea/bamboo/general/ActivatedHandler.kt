@@ -4,13 +4,11 @@ import android.app.Activity
 import android.app.Dialog
 import android.content.Intent
 import android.content.res.Configuration
-import android.content.res.Resources
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.KeyEvent.KEYCODE_MENU
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -292,7 +290,7 @@ class ActivatedHandler(private val activity: Activity) {
     /**
      * KeyDown事件
      */
-    private fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
+    fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
         return false
     }
 
@@ -319,7 +317,7 @@ class ActivatedHandler(private val activity: Activity) {
     /**
      * KeyUp事件
      */
-    private fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
+    fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
         return false
     }
 
@@ -498,10 +496,10 @@ class ActivatedHandler(private val activity: Activity) {
             }
         }
 
-        while (!this.g.isEmpty()) {
+        /*while (!this.g.isEmpty()) {
             (this.g.getFirst() as Runnable).run()
             this.g.removeFirst()
-        }
+        }*/
     }
 
 
@@ -646,20 +644,20 @@ class ActivatedHandler(private val activity: Activity) {
         return null
     }
 
-    fun findViewById(paramInt: Int): View {
-        val localView1: View = this.l
-        var localView2: View? = null
-        if (localView1 != null) localView2 = this.l.findViewById(paramInt)
-        if (localView2 == null) localView2 = this.c.findViewById(paramInt)
-        return localView2
-    }
+    /* fun findViewById(paramInt: Int): View {
+         val localView1: View = this.l
+         var localView2: View? = null
+         if (localView1 != null) localView2 = this.l.findViewById(paramInt)
+         if (localView2 == null) localView2 = this.c.findViewById(paramInt)
+         return localView2
+     }*/
 
 
-    private fun getActivity(): Activity {
+    fun getActivity(): Activity {
         return this.activity
     }
 
-    fun getPopupDialog(): Dialog? {
+    /*fun getPopupDialog(): Dialog? {
         if (!this.isActive) {
             return null
         }
@@ -670,9 +668,9 @@ class ActivatedHandler(private val activity: Activity) {
             this.dialog!!.setContentView(this.viewGroup!!, ViewGroup.LayoutParams(-1, -1))
         }
         return this.dialog
-    }
+    }*/
 
-    fun getResources(): Resources {
-        return this.c.getResources()
-    }
+    /* fun getResources(): Resources {
+         return this.c.getResources()
+     }*/
 }
