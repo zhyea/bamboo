@@ -28,12 +28,17 @@ class ActivatedHandler(private val activity: Activity) {
     /**
      * e
      */
-    private val subHandlers: ArrayList<ActivatedHandler> = ArrayList(12);
+    private val subHandlers: ArrayList<ActivatedHandler> = ArrayList(12)
 
     /**
      * f
      */
-    private val history: LinkedList<ActivatedHandler> = LinkedList();
+    private val history: LinkedList<ActivatedHandler> = LinkedList()
+
+    /**
+     * g
+     */
+    private val waitingRunners: LinkedList<Runnable> = LinkedList()
 
     /**
      * i
@@ -509,10 +514,10 @@ class ActivatedHandler(private val activity: Activity) {
             }
         }
 
-        /*while (!this.g.isEmpty()) {
-            (this.g.getFirst() as Runnable).run()
-            this.g.removeFirst()
-        }*/
+        while (!this.waitingRunners.isEmpty()) {
+            this.waitingRunners.first.run()
+            this.waitingRunners.removeFirst()
+        }
     }
 
 
@@ -755,17 +760,41 @@ class ActivatedHandler(private val activity: Activity) {
         doShowMenu()
     }
 
-    fun runOnActive(paramRunnable: Runnable): Boolean {
+    fun runOnActive(runner: Runnable): Boolean {
         if (isActive()) {
-            paramRunnable.run()
+            runner.run()
             return true
         }
-        this.g.add(paramRunnable)
+        this.waitingRunners.add(runner)
         return false
     }
 
-    fun runOnIdle(idleRunner: IdleRunner?) {
-        handler.post(iy(this, idleRunner))
+    fun runOnIdle(idleRunner: IdleRunner) {
+        handler.post(ActivatedRunner(this, idleRunner))
+    }
+
+
+    fun showPopup(subHandler: ActivatedHandler?) {
+        if (!this.isActive) {
+            throw AssertionError()
+        }
+        if (null == subHandler) {
+            throw AssertionError()
+        }
+        if (!this.isActive) {
+            return
+        }
+        do {
+            addSubController(subHandler)
+            val localView: View = subHandler.getContentView()
+            if (!b && localView == null) throw java.lang.AssertionError()
+            getPopupDialog()
+            if (!b && this.j == null) throw java.lang.AssertionError()
+            if (!b && this.k == null) throw java.lang.AssertionError()
+            this.k.addView(localView, ViewGroup.LayoutParams(-1, -1))
+            activate(subHandler)
+        } while (this.j.isShowing())
+        this.j.show()
     }
 
 
