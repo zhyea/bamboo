@@ -4,11 +4,16 @@ import android.app.Activity
 import android.app.Dialog
 import android.content.Intent
 import android.content.res.Configuration
+import android.content.res.Resources
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.KeyEvent
 import android.view.KeyEvent.KEYCODE_MENU
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.widget.FrameLayout
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -38,7 +43,7 @@ class ActivatedHandler(private val activity: Activity) {
     /**
      * d
      */
-    private var parent: IHandler? = null
+    private var parent: RequestHandler? = null
 
     /**
      * m
@@ -53,7 +58,7 @@ class ActivatedHandler(private val activity: Activity) {
     /**
      * h
      */
-    private var subHandlerParent: IHandler? = null
+    private var subHandlerParent: RequestHandler? = null
 
     /**
      * j
@@ -69,6 +74,11 @@ class ActivatedHandler(private val activity: Activity) {
      * l
      */
     private var view: View? = null
+
+    /**
+     * h
+     */
+    private var requestHandler: RequestHandler? = null
 
 
     /**
@@ -414,6 +424,9 @@ class ActivatedHandler(private val activity: Activity) {
         //
     }
 
+    private fun onBack(): Boolean {
+        return false
+    }
 
     /**
      * 执行activate
@@ -442,7 +455,7 @@ class ActivatedHandler(private val activity: Activity) {
     /**
      * 设置parent controller
      */
-    private fun setParent(parent: IHandler?) {
+    private fun setParent(parent: RequestHandler?) {
         if (this.subHandlerParent !== parent) {
             this.subHandlerParent = parent
             if (this.subHandlerParent == null) {
@@ -644,33 +657,120 @@ class ActivatedHandler(private val activity: Activity) {
         return null
     }
 
-    /* fun findViewById(paramInt: Int): View {
-         val localView1: View = this.l
-         var localView2: View? = null
-         if (localView1 != null) localView2 = this.l.findViewById(paramInt)
-         if (localView2 == null) localView2 = this.c.findViewById(paramInt)
-         return localView2
-     }*/
+
+    fun findViewById(viewId: Int): View? {
+        var tmp: View? = null
+        if (null != this.view) {
+            tmp = this.view!!.findViewById(viewId)
+        }
+        if (null == tmp) {
+            tmp = this.activity.findViewById(viewId)
+        }
+        return tmp
+    }
 
 
     fun getActivity(): Activity {
         return this.activity
     }
 
-    /*fun getPopupDialog(): Dialog? {
+
+    fun getPopupDialog(): Dialog? {
         if (!this.isActive) {
             return null
         }
         if (this.dialog == null) {
-            if (this.viewGroup != null) throw AssertionError()
-            this.j = ja(this, getActivity(), true, true)
+            if (null != this.viewGroup) {
+                throw AssertionError()
+            }
+            this.dialog = ActivatedDialog(this, getActivity(), resetWindow = true, clearFlags = true)
             this.viewGroup = FrameLayout(getActivity())
-            this.dialog!!.setContentView(this.viewGroup!!, ViewGroup.LayoutParams(-1, -1))
+            this.dialog!!.setContentView(this.viewGroup!!, ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT))
         }
         return this.dialog
-    }*/
+    }
 
-    /* fun getResources(): Resources {
-         return this.c.getResources()
-     }*/
+
+    fun getResources(): Resources {
+        return this.activity.resources
+    }
+
+
+    private fun doBack(): Boolean {
+        val itr: ListIterator<ActivatedHandler> = this.history.listIterator(this.history.size)
+        while (itr.hasPrevious()) {
+            val tmp = itr.previous()
+            if (tmp.doBack()) {
+                return true
+            }
+        }
+
+        if (dismissTopPopup()) {
+            return true
+        }
+        if (null != this.dialog) {
+            if (null == this.viewGroup) {
+                throw AssertionError()
+            }
+            if (this.viewGroup!!.childCount >= 1) {
+                throw AssertionError()
+            }
+            this.dialog!!.dismiss()
+            this.dialog = null
+            this.viewGroup = null
+        }
+        return onBack()
+    }
+
+
+    fun requestBack() {
+        if (!this.activity.isFinishing) {
+            this.activity.onBackPressed()
+        }
+    }
+
+    fun requestDeactive(): Boolean {
+        return if (null != this.requestHandler) {
+            this.requestHandler!!.requestDeactive(this)
+        } else {
+            false
+        }
+    }
+
+    fun requestHideMenu() {
+        if (null != this.requestHandler) {
+            this.requestHandler!!.requestHideMenu()
+        }
+        while (!isMenuShowing()) {
+            return
+        }
+        doHideMenu()
+    }
+
+    fun requestShowMenu() {
+        if (null != this.requestHandler) {
+            this.requestHandler!!.requestShowMenu()
+            return
+        }
+        doShowMenu()
+    }
+
+    fun runOnActive(paramRunnable: Runnable): Boolean {
+        if (isActive()) {
+            paramRunnable.run()
+            return true
+        }
+        this.g.add(paramRunnable)
+        return false
+    }
+
+    fun runOnIdle(idleRunner: IdleRunner?) {
+        handler.post(iy(this, idleRunner))
+    }
+
+
+    companion object {
+        val handler: Handler = Handler(Looper.getMainLooper())
+    }
+
 }
