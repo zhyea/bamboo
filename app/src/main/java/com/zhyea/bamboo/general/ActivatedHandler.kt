@@ -525,13 +525,13 @@ class ActivatedHandler(private val activity: Activity) {
      * 执行deactive
      */
     private fun deactivate(controller: ActivatedHandler) {
-        if (!controller.isActive()) {
-            throw AssertionError()
-        }
+        
+        check(controller.isActive)
+
         this.history.remove(controller)
-        if (!this.isActive && controller.isActive()) {
-            throw AssertionError()
-        }
+
+        check(!this.isActive || !controller.isActive())
+
         if (!controller.isActive()) {
             return
         }
@@ -545,9 +545,9 @@ class ActivatedHandler(private val activity: Activity) {
         if (this.dialog == null) {
             return 0
         }
-        if (this.viewGroup == null) {
-            throw AssertionError()
-        }
+
+        requireNotNull(this.viewGroup)
+
         return this.viewGroup!!.childCount
     }
 
@@ -590,9 +590,9 @@ class ActivatedHandler(private val activity: Activity) {
         if (this.dialog == null) {
             return false
         }
-        if (this.viewGroup == null) {
-            throw AssertionError()
-        }
+
+        requireNotNull(this.viewGroup)
+
         while (true) {
             for (i1 in 0 until this.viewGroup!!.childCount) {
                 val tmp = this.viewGroup!!.getChildAt(i1)
@@ -614,8 +614,9 @@ class ActivatedHandler(private val activity: Activity) {
             return popup > 0
         }
         do {
-            if (this.dialog == null) throw AssertionError()
-            if (this.viewGroup == null) throw AssertionError()
+            requireNotNull(this.dialog)
+            requireNotNull(this.viewGroup)
+
             val localView: View = controller.getContentView()
             deactivate(controller)
             this.viewGroup!!.removeView(localView)
@@ -631,7 +632,7 @@ class ActivatedHandler(private val activity: Activity) {
             return false
         }
         do {
-            if (this.viewGroup == null) throw AssertionError()
+            requireNotNull(this.viewGroup)
         } while (this.viewGroup!!.childCount < 1)
 
         val lastView: View = this.viewGroup!!.getChildAt(this.viewGroup!!.childCount - 1)
@@ -644,9 +645,7 @@ class ActivatedHandler(private val activity: Activity) {
         }
 
         while (true) {
-            if (controller == null) {
-                throw AssertionError()
-            }
+            requireNotNull(controller)
             dismissPopup(controller)
             return true
         }
@@ -685,6 +684,8 @@ class ActivatedHandler(private val activity: Activity) {
             return null
         }
         if (this.dialog == null) {
+
+
             if (null != this.viewGroup) {
                 throw AssertionError()
             }
@@ -717,6 +718,7 @@ class ActivatedHandler(private val activity: Activity) {
             if (null == this.viewGroup) {
                 throw AssertionError()
             }
+
             if (this.viewGroup!!.childCount >= 1) {
                 throw AssertionError()
             }
