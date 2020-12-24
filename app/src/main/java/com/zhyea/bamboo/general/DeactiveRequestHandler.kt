@@ -8,7 +8,7 @@ class DeactiveRequestHandler(val request: ActivatedHandler) : RequestHandler {
 
 
     override fun requestDeactive(request: ActivatedHandler?): Boolean {
-        return true;
+        return true
     }
 
     override fun requestHideMenu() {

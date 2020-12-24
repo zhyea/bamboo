@@ -775,30 +775,26 @@ class ActivatedHandler(private val activity: Activity) {
 
 
     fun showPopup(subHandler: ActivatedHandler?) {
-        if (!this.isActive) {
-            throw AssertionError()
-        }
-        if (null == subHandler) {
-            throw AssertionError()
-        }
-        if (!this.isActive) {
-            return
-        }
+        check(this.isActive)
+        requireNotNull(subHandler)
+        check(this.isActive)
         do {
             addSubController(subHandler)
-            val localView: View = subHandler.getContentView()
-            if (!b && localView == null) throw java.lang.AssertionError()
+            val v: View = subHandler.getContentView()
             getPopupDialog()
-            if (!b && this.j == null) throw java.lang.AssertionError()
-            if (!b && this.k == null) throw java.lang.AssertionError()
-            this.k.addView(localView, ViewGroup.LayoutParams(-1, -1))
+
+            requireNotNull(this.dialog)
+            requireNotNull(this.viewGroup)
+
+            this.viewGroup!!.addView(v, ViewGroup.LayoutParams(-1, -1))
             activate(subHandler)
-        } while (this.j.isShowing())
-        this.j.show()
+        } while (this.dialog!!.isShowing)
+        this.dialog!!.show()
     }
 
 
     companion object {
+
         val handler: Handler = Handler(Looper.getMainLooper())
     }
 

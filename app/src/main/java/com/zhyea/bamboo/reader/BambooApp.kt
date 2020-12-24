@@ -27,25 +27,19 @@ abstract class BambooApp() : Application() {
 
 
     fun addListener(listener: BambooAppListener) {
-        if (!checkAccess()) {
-            throw AssertionError()
-        }
+        check(checkAccess())
         this.listeners.add(listener)
     }
 
 
     fun removeAppListener(listener: BambooAppListener) {
-        if (checkAccess()) {
-            throw AssertionError()
-        }
+        check(!checkAccess())
         this.listeners.remove(listener)
     }
 
 
     fun getCurrentActivity(): Activity? {
-        if (!checkAccess()) {
-            throw AssertionError()
-        }
+        check(!checkAccess())
         return this.activity
     }
 
