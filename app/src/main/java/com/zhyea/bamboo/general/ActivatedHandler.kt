@@ -10,6 +10,7 @@ import android.os.Handler
 import android.os.Looper
 import android.view.KeyEvent
 import android.view.KeyEvent.KEYCODE_MENU
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
@@ -525,7 +526,7 @@ class ActivatedHandler(private val activity: Activity) {
      * 执行deactive
      */
     private fun deactivate(controller: ActivatedHandler) {
-        
+
         check(controller.isActive)
 
         this.history.remove(controller)
@@ -679,16 +680,13 @@ class ActivatedHandler(private val activity: Activity) {
     }
 
 
-    fun getPopupDialog(): Dialog? {
+    private fun getPopupDialog(): Dialog? {
         if (!this.isActive) {
             return null
         }
         if (this.dialog == null) {
+            check(null == this.viewGroup)
 
-
-            if (null != this.viewGroup) {
-                throw AssertionError()
-            }
             this.dialog = ActivatedDialog(this, getActivity(), resetWindow = true, clearFlags = true)
             this.viewGroup = FrameLayout(getActivity())
             this.dialog!!.setContentView(this.viewGroup!!, ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT))
@@ -715,13 +713,10 @@ class ActivatedHandler(private val activity: Activity) {
             return true
         }
         if (null != this.dialog) {
-            if (null == this.viewGroup) {
-                throw AssertionError()
-            }
+            check(null != this.viewGroup)
 
-            if (this.viewGroup!!.childCount >= 1) {
-                throw AssertionError()
-            }
+            check(this.viewGroup!!.childCount < 1)
+
             this.dialog!!.dismiss()
             this.dialog = null
             this.viewGroup = null
@@ -773,6 +768,16 @@ class ActivatedHandler(private val activity: Activity) {
 
     fun runOnIdle(idleRunner: IdleRunner) {
         handler.post(ActivatedRunner(this, idleRunner))
+    }
+
+
+    fun setContentView(view: View) {
+        this.view = view
+    }
+
+
+    fun setContentView(resId: Int) {
+        this.view = LayoutInflater.from(getActivity()).inflate(resId, null)
     }
 
 
