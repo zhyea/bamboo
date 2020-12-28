@@ -49,7 +49,7 @@ class ActivatedHandler(private val activity: Activity) {
     /**
      * d
      */
-    private var parent: RequestHandler? = null
+    private var parent: IRequestHandler? = null
 
     /**
      * m
@@ -64,7 +64,7 @@ class ActivatedHandler(private val activity: Activity) {
     /**
      * h
      */
-    private var subHandlerParent: RequestHandler? = null
+    private var subHandlerParentI: IRequestHandler? = null
 
     /**
      * j
@@ -84,7 +84,7 @@ class ActivatedHandler(private val activity: Activity) {
     /**
      * h
      */
-    private var requestHandler: RequestHandler? = null
+    private var IRequestHandler: IRequestHandler? = null
 
 
     /**
@@ -461,10 +461,10 @@ class ActivatedHandler(private val activity: Activity) {
     /**
      * 设置parent controller
      */
-    private fun setParent(parent: RequestHandler?) {
-        if (this.subHandlerParent !== parent) {
-            this.subHandlerParent = parent
-            if (this.subHandlerParent == null) {
+    private fun setParent(parent: IRequestHandler?) {
+        if (this.subHandlerParentI !== parent) {
+            this.subHandlerParentI = parent
+            if (this.subHandlerParentI == null) {
                 onDetachFromParent()
             }
         } else {
@@ -732,16 +732,16 @@ class ActivatedHandler(private val activity: Activity) {
     }
 
     fun requestDeactive(): Boolean {
-        return if (null != this.requestHandler) {
-            this.requestHandler!!.requestDeactive(this)
+        return if (null != this.IRequestHandler) {
+            this.IRequestHandler!!.requestDeactive(this)
         } else {
             false
         }
     }
 
     fun requestHideMenu() {
-        if (null != this.requestHandler) {
-            this.requestHandler!!.requestHideMenu()
+        if (null != this.IRequestHandler) {
+            this.IRequestHandler!!.requestHideMenu()
         }
         while (!isMenuShowing()) {
             return
@@ -750,8 +750,8 @@ class ActivatedHandler(private val activity: Activity) {
     }
 
     fun requestShowMenu() {
-        if (null != this.requestHandler) {
-            this.requestHandler!!.requestShowMenu()
+        if (null != this.IRequestHandler) {
+            this.IRequestHandler!!.requestShowMenu()
             return
         }
         doShowMenu()

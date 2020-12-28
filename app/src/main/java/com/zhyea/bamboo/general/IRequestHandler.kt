@@ -4,7 +4,7 @@ package com.zhyea.bamboo.general
  * jc
  * @author robin
  */
-interface RequestHandler {
+interface IRequestHandler {
 
 
     fun requestDeactive(request: ActivatedHandler?): Boolean

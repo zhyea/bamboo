@@ -4,7 +4,7 @@ package com.zhyea.bamboo.general
  * ix
  * @author robin
  */
-class DeactiveRequestHandler(val request: ActivatedHandler) : RequestHandler {
+class DeactiveRequestHandler(val request: ActivatedHandler) : IRequestHandler {
 
 
     override fun requestDeactive(request: ActivatedHandler?): Boolean {
