@@ -1,8 +1,11 @@
 package com.zhyea.bamboo.reader
 
 import android.app.Activity
+import android.hardware.Sensor
+import android.hardware.SensorEventListener
 import android.os.Handler
 import android.os.Looper
+import android.os.Message
 import android.os.PowerManager
 import android.os.PowerManager.WakeLock
 import android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
@@ -48,7 +51,7 @@ class BambooActivity : Activity() {
 
     private fun resetScreenTimeout() {
         if (null == this.handler) {
-            this.handler = Handler(Looper.getMainLooper(), new DkActivity .3(this))
+            this.handler = Handler(Looper.getMainLooper(), BambooActivityCallback(this))
         }
         this.handler!!.removeCallbacksAndMessages(null);
         if (0 == delayMillis) {
@@ -114,6 +117,18 @@ class BambooActivity : Activity() {
 
     interface OnWindowRotationChangeListener {
         fun onWindowRotationChange(eventId: Int)
+    }
+
+    class BambooActivityCallback(val bambooActivity: BambooActivity) : Handler.Callback {
+        override fun handleMessage(msg: Message): Boolean {
+            TODO("Not yet implemented")
+            return true
+        }
+    }
+
+
+    class SensorListenerInfo(val sensor: Sensor, val eventListener: SensorEventListener, val eventCode: Int) {
+
     }
 
 }
