@@ -60,7 +60,27 @@ class BambooActivity : Activity() {
     /**
      * m
      */
-    private val keyboardBrightness: Double = -1.0
+    private var keyboardBrightness: Double = -1.0
+
+    /**
+     * k
+     */
+    private var screenBrightness: Double = -1.0
+
+    /**
+     * p
+     */
+    private var screenTimeout: Int = 0;
+
+    /**
+     * j
+     */
+    private var screenBrightnessMode: BrightnessMode = BrightnessMode.SYSTEM
+
+    /**
+     * l
+     */
+    private var keyboardBrightnessMode: BrightnessMode = BrightnessMode.SYSTEM
 
 
     private fun lockScreen() {
@@ -128,13 +148,44 @@ class BambooActivity : Activity() {
     }
 
 
-    fun getSensorManager(): SensorManager? {
+    private fun getSensorManager(): SensorManager? {
         if (null == this.sensorManager) {
             this.sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
         }
         return this.sensorManager
     }
 
+
+    fun setContentController(controller: ContentController) {
+        this.contentController = controller
+        this.contentController?.setParent(this.b)
+    }
+
+    fun setKeyboardBrightness(paramFloat: Double) {
+        this.keyboardBrightness = paramFloat
+        adjustKeyboardBrightness()
+    }
+
+    fun setKeyboardBrightnessMode(mode: BrightnessMode) {
+        this.keyboardBrightnessMode = mode
+        adjustKeyboardBrightness()
+    }
+
+    fun setScreenBrightness(screenBrightness: Double) {
+        this.screenBrightness = screenBrightness
+        adjustScreenBrightness()
+    }
+
+    fun setScreenBrightnessMode(mode: BrightnessMode) {
+        this.screenBrightnessMode = mode
+        adjustScreenBrightness()
+    }
+
+    fun setScreenTimeout(timeout: Int) {
+        this.screenTimeout = timeout
+        lockScreen()
+        resetScreenTimeout()
+    }
 
     /**
      * -------------------------------------------------------------------------

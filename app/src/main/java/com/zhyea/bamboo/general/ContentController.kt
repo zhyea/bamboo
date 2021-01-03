@@ -461,7 +461,7 @@ class ContentController(private val activity: Activity) {
     /**
      * 设置parent controller
      */
-    private fun setParent(parent: IRequestHandler?) {
+    fun setParent(parent: IRequestHandler?) {
         if (this.subHandlerParentI !== parent) {
             this.subHandlerParentI = parent
             if (this.subHandlerParentI == null) {
