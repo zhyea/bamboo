@@ -5,7 +5,7 @@ import android.os.Looper
 /**
  * iy
  */
-class ActivatedRunner(activatedHandler: ActivatedHandler, val idleRunner: IdleRunner) : Runnable {
+class ActivatedRunner(activatedHandler: ContentController, val idleRunner: IdleRunner) : Runnable {
 
 
     override fun run() {

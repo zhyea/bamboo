@@ -7,7 +7,7 @@ package com.zhyea.bamboo.general
 interface IRequestHandler {
 
 
-    fun requestDeactive(request: ActivatedHandler?): Boolean
+    fun requestDeactive(request: ContentController?): Boolean
 
     fun requestHideMenu()
 

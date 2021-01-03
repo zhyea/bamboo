@@ -4,7 +4,7 @@ import android.content.Context
 import android.view.KeyEvent
 
 class ActivatedDialog(
-    private val handler: ActivatedHandler,
+    private val handler: ContentController,
     context: Context,
     resetWindow: Boolean,
     clearFlags: Boolean

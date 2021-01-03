@@ -2,14 +2,16 @@ package com.zhyea.bamboo.reader
 
 import android.app.Activity
 import android.hardware.Sensor
+import android.hardware.Sensor.TYPE_ACCELEROMETER
 import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
 import android.os.PowerManager
 import android.os.PowerManager.WakeLock
 import android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-import com.zhyea.bamboo.general.ActivatedHandler
+import com.zhyea.bamboo.general.ContentController
 import com.zhyea.bamboo.general.IRequestHandler
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -31,6 +33,16 @@ class BambooActivity : Activity() {
     private var handler: Handler? = null
 
     /**
+     * h
+     */
+    private var sensorManager: SensorManager? = null
+
+    /**
+     * c
+     */
+    private val sensorListeners: LinkedList<SensorListenerInfo> = LinkedList()
+
+    /**
      * d
      */
     private val windowRotationChangeListeners: LinkedList<OnWindowRotationChangeListener> = LinkedList()
@@ -39,6 +51,16 @@ class BambooActivity : Activity() {
      * p
      */
     private val delayMillis = 0;
+
+    /**
+     * i
+     */
+    private var contentController: ContentController? = null
+
+    /**
+     * m
+     */
+    private val keyboardBrightness: Double = -1.0
 
 
     private fun lockScreen() {
@@ -82,6 +104,38 @@ class BambooActivity : Activity() {
         }
     }
 
+
+    fun addOnScreenRotationChangeListener(listener: OnWindowRotationChangeListener) {
+        this.windowRotationChangeListeners.add(listener)
+    }
+
+    fun addSensorListener(sensor: Sensor, sensorEventListener: SensorEventListener, paramInt: Int) {
+        getSensorManager()?.registerListener(sensorEventListener, sensor, paramInt)
+        this.sensorListeners.add(SensorListenerInfo(sensor, sensorEventListener, paramInt))
+    }
+
+
+    fun getAccelerometerSensor(): Sensor? {
+        return getSensorManager()?.getDefaultSensor(TYPE_ACCELEROMETER)
+    }
+
+    fun getContentController(): ContentController? {
+        return this.contentController
+    }
+
+    fun getKeyboardBrightness(): Double {
+        return this.keyboardBrightness
+    }
+
+
+    fun getSensorManager(): SensorManager? {
+        if (null == this.sensorManager) {
+            this.sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
+        }
+        return this.sensorManager
+    }
+
+
     /**
      * -------------------------------------------------------------------------
      */
@@ -96,7 +150,7 @@ class BambooActivity : Activity() {
 
     class BambooActivityListener(private val activity: BambooActivity) : IRequestHandler {
 
-        override fun requestDeactive(request: ActivatedHandler?): Boolean {
+        override fun requestDeactive(request: ContentController?): Boolean {
             return false
         }
 
@@ -108,7 +162,7 @@ class BambooActivity : Activity() {
         }
 
 
-        fun getSoftInputMode(handler: ActivatedHandler): Int {
+        fun getSoftInputMode(handler: ContentController): Int {
             return this.activity.window.attributes.softInputMode
         }
 
