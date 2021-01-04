@@ -10,16 +10,22 @@ import android.os.Looper
 import android.os.Message
 import android.os.PowerManager
 import android.os.PowerManager.WakeLock
+import android.view.WindowManager
 import android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
 import com.zhyea.bamboo.general.ContentController
 import com.zhyea.bamboo.general.IRequestHandler
 import java.util.*
 import java.util.concurrent.TimeUnit
+import kotlin.math.max
+import kotlin.math.min
 
 
 class BambooActivity : Activity() {
 
 
+    /**
+     * b
+     */
     private val listener: BambooActivityListener = BambooActivityListener(this)
 
     /**
@@ -60,12 +66,12 @@ class BambooActivity : Activity() {
     /**
      * m
      */
-    private var keyboardBrightness: Double = -1.0
+    private var keyboardBrightness: Float = -1.0F
 
     /**
      * k
      */
-    private var screenBrightness: Double = -1.0
+    private var screenBrightness: Float = -1.0F
 
     /**
      * p
@@ -81,6 +87,38 @@ class BambooActivity : Activity() {
      * l
      */
     private var keyboardBrightnessMode: BrightnessMode = BrightnessMode.SYSTEM
+
+
+    private fun adjustKeyboardBrightness() {
+        val layoutParams: WindowManager.LayoutParams = window.attributes;
+        var buttonBrightness: Float = layoutParams.buttonBrightness
+
+        while (true) {
+            if (layoutParams.buttonBrightness.compareTo(buttonBrightness) != 0) {
+                layoutParams.buttonBrightness = buttonBrightness
+                window.attributes = layoutParams
+                return
+            }
+            buttonBrightness = -1.0F;
+            buttonBrightness = max(0.0F, min(this.keyboardBrightness, 1.0F))
+        }
+    }
+
+
+    private fun adjustScreenBrightness() {
+        val layoutParams: WindowManager.LayoutParams = window.attributes;
+        var buttonBrightness: Float = layoutParams.screenBrightness
+
+        while (true) {
+            if (layoutParams.screenBrightness.compareTo(buttonBrightness) != 0) {
+                layoutParams.screenBrightness = buttonBrightness
+                window.attributes = layoutParams
+                return
+            }
+            buttonBrightness = -1.0F;
+            buttonBrightness = max(0.02F, min(this.screenBrightness, 1.0F));
+        }
+    }
 
 
     private fun lockScreen() {
@@ -143,7 +181,7 @@ class BambooActivity : Activity() {
         return this.contentController
     }
 
-    fun getKeyboardBrightness(): Double {
+    fun getKeyboardBrightness(): Float {
         return this.keyboardBrightness
     }
 
@@ -158,11 +196,11 @@ class BambooActivity : Activity() {
 
     fun setContentController(controller: ContentController) {
         this.contentController = controller
-        this.contentController?.setParent(this.b)
+        this.contentController?.setParent(this.listener)
     }
 
-    fun setKeyboardBrightness(paramFloat: Double) {
-        this.keyboardBrightness = paramFloat
+    fun setKeyboardBrightness(brightness: Float) {
+        this.keyboardBrightness = brightness
         adjustKeyboardBrightness()
     }
 
@@ -171,7 +209,7 @@ class BambooActivity : Activity() {
         adjustKeyboardBrightness()
     }
 
-    fun setScreenBrightness(screenBrightness: Double) {
+    fun setScreenBrightness(screenBrightness: Float) {
         this.screenBrightness = screenBrightness
         adjustScreenBrightness()
     }
