@@ -2,11 +2,14 @@ package com.zhyea.bamboo.general
 
 import com.zhyea.bamboo.reader.common.Pool
 
-class ArrayFPool : Pool<Array<Float>>() {
+/**
+ * is
+ */
+class ArrayFourPool : Pool<Array<Float>>() {
 
 
     override fun newInstance(): Array<Float> {
-        return Array(2) { 0.0F }
+        return Array(4) { 0.0F }
     }
 
     override fun reset(t: Array<Float>) {

@@ -39,7 +39,22 @@ object PoolManager {
     /**
      * h
      */
-    private val arrayFPool: Pool<Array<Float>> = ArrayFPool()
+    private val arrayTwoPool: Pool<Array<Float>> = ArrayTwoPool()
+
+    /**
+     * i
+     */
+    private val arrayFourPool: Pool<Array<Float>> = ArrayFourPool()
+
+    /**
+     * j
+     */
+    private val arrayNinePool: Pool<Array<Float>> = ArrayNinePool()
+
+    /**
+     * k
+     */
+    private val arrayIntPool: Pool<Array<Int>> = ArrayIntPool()
 
 
 }
