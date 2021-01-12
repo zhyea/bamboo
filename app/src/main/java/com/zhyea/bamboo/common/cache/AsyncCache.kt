@@ -4,7 +4,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.net.Uri
 import java.io.File
 
-class AsyncCache(dbPath: String) {
+class AsyncCache(dbPath: String?) {
 
     private var db: SQLiteDatabase? = null
 
@@ -41,6 +41,24 @@ class AsyncCache(dbPath: String) {
             this.db = null
         }
     }
+
+
+    constructor() : this(null)
+
+
+    private fun b(): Int {
+        val localIterator: Iterator<*> = this.b.values().iterator()
+        var j = 0
+        while (localIterator.hasNext()) j += (localIterator.next() as AsyncCache.RecordList).size()
+        return j
+    }
+
+    fun a(paramInt: Int) {
+        this.g = paramInt
+    }
+
+
+
 }
 
 
