@@ -3,12 +3,26 @@ package com.zhyea.bamboo.common.cache
 import android.database.sqlite.SQLiteDatabase
 import android.net.Uri
 import java.io.File
+import java.util.*
+import kotlin.collections.LinkedHashMap
 
 class AsyncCache(dbPath: String?) {
 
+    /**
+     * h
+     */
     private var db: SQLiteDatabase? = null
 
+    /**
+     * c
+     */
     private var executeThread: Thread? = null
+
+    /**
+     * b
+     */
+    private val map: LinkedHashMap<String, RecordList> = LinkedHashMap(8)
+
 
     init {
         var tmpDb: SQLiteDatabase? = null
@@ -46,11 +60,35 @@ class AsyncCache(dbPath: String?) {
     constructor() : this(null)
 
 
+    private fun a(paramBoolean: Boolean): ListIterator<*>? {
+
+        val j = b()
+        val localArrayList = ArrayList(this.map.size)
+        val localIterator: Iterator<*> = this.map.values.iterator()
+        while (localIterator.hasNext()) {
+            val localRecordList = localIterator.next() as RecordList?
+            if (localRecordList != null) {
+                if (paramBoolean);
+                var k: Int = localRecordList.size
+                while (true) {
+                    localArrayList.add(localRecordList.listIterator(k))
+                    break
+                    k = 0
+                }
+            }
+        }
+        return b(this, j, paramBoolean, localArrayList)
+    }
+
+
+
     private fun b(): Int {
-        val localIterator: Iterator<*> = this.b.values().iterator()
-        var j = 0
-        while (localIterator.hasNext()) j += (localIterator.next() as AsyncCache.RecordList).size()
-        return j
+        val values = this.map.values
+        var total = 0
+        for (list in values) {
+            total += list.size
+        }
+        return total;
     }
 
     fun a(paramInt: Int) {
@@ -58,6 +96,17 @@ class AsyncCache(dbPath: String?) {
     }
 
 
+    enum class DataState(val code: Int) {
+        NULL(0),
+        UNFILLED(1),
+        FILLED(2),
+        EMPTY(4), ;
+    }
+
+
+    class RecordList : LinkedList<Any>() {
+
+    }
 
 }
 
