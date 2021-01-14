@@ -63,23 +63,15 @@ class AsyncCache(dbPath: String?) {
     private fun a(paramBoolean: Boolean): ListIterator<*>? {
 
         val j = b()
-        val localArrayList = ArrayList(this.map.size)
-        val localIterator: Iterator<*> = this.map.values.iterator()
-        while (localIterator.hasNext()) {
-            val localRecordList = localIterator.next() as RecordList?
-            if (localRecordList != null) {
-                if (paramBoolean);
-                var k: Int = localRecordList.size
-                while (true) {
-                    localArrayList.add(localRecordList.listIterator(k))
-                    break
-                    k = 0
-                }
-            }
+        val list = ArrayList<ListIterator<Any>>(this.map.size)
+        for (recordList in this.map.values) {
+            val k: Int = recordList.size
+            val itr = recordList.listIterator(k)
+            list.add(itr)
         }
-        return b(this, j, paramBoolean, localArrayList)
-    }
 
+        return b(this, j, paramBoolean, list)
+    }
 
 
     private fun b(): Int {
